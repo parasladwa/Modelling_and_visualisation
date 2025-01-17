@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 N = 50
-
+T = 50
 
 def set_up():
     #randomly set up array
@@ -91,21 +91,58 @@ def main():
     
     
     #find energy & energy change
-    energy = find_energy(neighbours, arr, site)
-    print(energy, 'energy')
+    energy_init = find_energy(neighbours, arr, site)
+    
+    # change = after - initial
+    energy_fin = -1 * energy_init
+    delta_E = energy_fin - energy_init
+    print(delta_E)
+    
+    
+    """
+    branch here
+    
+    case1:
+        delta E <= 0
+        flip occurs
         
+    case2:
+        flip with probability of exp(-delta E / k_b T)
+    """
     
-
+    if delta_E <= 0:
+        arr[site[0], site[1]] *= -1
+        print("E loss flipped")
     
-    
-    #find energy of site
-    energy = 0
-    
-    
-    
-
-
+    else:
+        prob = np.exp(-delta_E / T)
+        print(prob)
+        
+        #consider flip (rng)
+        if random.uniform(0, 1) < prob:
+            arr[site[0], site[1]] *= -1
+            print("rng flipped")
+            
 
 
 
 main()
+
+
+
+#check the flip works
+#get rid of that line
+#work out the visuals
+#kawasaki vs glauber
+#sweeps????????????????????
+
+
+
+
+
+
+
+
+
+
+
