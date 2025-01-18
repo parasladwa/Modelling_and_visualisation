@@ -6,10 +6,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-N = 50
-T = 50
 
-def set_up():
+
+def set_up(N):
     #randomly set up array
     arr = np.zeros([N, N], dtype=int)
     
@@ -21,7 +20,7 @@ def set_up():
     
 
 
-def find_nn(site):
+def find_nn(site, N):
     
     #find addresses of nearest neighbors
     neighbours = np.zeros(shape=(4,2))
@@ -67,7 +66,7 @@ def find_energy(nn, arr, site):
     
 
 
-def main():
+def testing_funcs(N):
     '''
     so far this is to test functions
     will be in a loop later once funcs are completed
@@ -98,6 +97,8 @@ def main():
     delta_E = energy_fin - energy_init
     print(delta_E)
     
+    print(arr)
+    
     
     """
     branch here
@@ -122,22 +123,105 @@ def main():
         if random.uniform(0, 1) < prob:
             arr[site[0], site[1]] *= -1
             print("rng flipped")
+# testing_funcs(50)
+
+
+
+
+def main():
+    
+    
+    
+    if len(sys.argv) != 4:
+        print("%run checkpoint1.py <glauber/kawasaki> <N> <T>")
+        return
+    
+    
+    
+    f, dynamics_method, N, T = sys.argv
+    N, T = int(N), float(T)
+    
+    arr = set_up(N)
+    #init fig
+    fig = plt.figure()
+    im=plt.imshow(arr, animated=True)
+    
+    
+    
+    if dynamics_method == "glauber":
+        
+        #list for multiple
+        #for glauber want to use 1<T<3, dt = 0.1
+        #use just one for now
+        temps = np.array([T])
+        
+        for t in temps:
             
+            
+            nsteps=1000000######################################HOW MANY
+            
+            
+            
+            for n in range(nsteps):
+                #choose site randomly
+                site = [random.randint(0, N-1), random.randint(0, N-1)]
+            
+            
+                #find neighbours addresses
+                nn_addresses = find_nn(site, N)
+    
+                #now find spins at nn's
+                neighbours = np.zeros([4])
+                for i in range(len(nn_addresses)):
+                    neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
+
+                
+                #find energy & energy change
+                #change = after - initial
+                energy_init = find_energy(neighbours, arr, site)
+                energy_fin = -1 * energy_init
+                delta_E = energy_fin - energy_init
+                
+                """
+                branch here
+                
+                case1:
+                    delta E <= 0
+                    flip occurs
+                    
+                case2:
+                    flip with probability of exp(-delta E / k_b T)
+                """
+                
+                if delta_E <= 0:
+                    arr[site[0], site[1]] *= -1
+
+                
+                else:
+                    prob = np.exp(-delta_E / t)
+
+                    if random.uniform(0, 1) < prob:
+                        arr[site[0], site[1]] *= -1
+
+
+                #update anim
+                if n%500 == 0:
+
+                    plt.cla()
+                    im=plt.imshow(arr, animated=True)
+                    plt.draw()
+                    plt.pause(0.0001)
+
+
+if __name__ == "__main__":
+    main()
 
 
 
-main()
 
-
-
-#check the flip works
 #get rid of that line
 #work out the visuals
-#kawasaki vs glauber
 #sweeps????????????????????
-
-
-
 
 
 
