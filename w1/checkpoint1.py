@@ -34,7 +34,6 @@ def find_nn(site, N):
     #left
     neighbours[3] = site + np.array([0, -1])
     
-    
     #boundary conditions
     for i in range(len(neighbours)):
         for j in range(len(neighbours[0])):
@@ -48,6 +47,7 @@ def find_nn(site, N):
             neighbours[i][j] = np.asarray(neighbours[i][j], dtype=int) # check if i can delete this
             
     return neighbours
+
 
     
 def find_energy(nn, arr, site):
@@ -63,6 +63,97 @@ def find_energy(nn, arr, site):
         
     return energy
     
+
+
+def main():
+    
+    
+    if len(sys.argv) != 4:
+        print("%run checkpoint1.py <glauber/kawasaki> <N> <T>")
+        return
+    
+    
+    f, dynamics_method, N, T = sys.argv
+    N, T = int(N), float(T)
+    
+    arr = set_up(N)
+    #init fig
+    fig = plt.figure()
+    im=plt.imshow(arr, animated=True)
+    
+    
+    
+    if dynamics_method == "glauber":
+        
+        #list for multiple
+        #for glauber want to use 1<T<3, dt = 0.1
+        #use just one for now
+        temps = np.array([T])
+        
+        for t in temps:
+            
+            nsteps=250000######################################HOW MANY
+            
+            for n in range(nsteps):
+                
+                #choose site randomly
+                site = [random.randint(0, N-1), random.randint(0, N-1)]
+            
+                #find neighbours addresses
+                nn_addresses = find_nn(site, N)
+    
+                #now find spins at nn's
+                neighbours = np.zeros([4])
+                for i in range(len(nn_addresses)):
+                    neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
+                
+                #find energy & energy change
+                #change = after - initial
+                energy_init = find_energy(neighbours, arr, site)
+                energy_fin = -1 * energy_init
+                delta_E = energy_fin - energy_init
+                
+                
+                """
+                branch here
+                
+                case1:
+                    delta E <= 0
+                    flip occurs
+                    
+                case2:
+                    flip with probability of exp(-delta E / k_b T)
+                """
+                
+                
+                if delta_E <= 0:
+                    arr[site[0], site[1]] *= -1
+                    
+                
+                else:
+                    prob = np.exp(-delta_E / t)
+                    if random.uniform(0, 1) < prob:
+                        arr[site[0], site[1]] *= -1
+
+
+                #update anim
+                if n%100 == 0:
+
+                    plt.cla()
+                    im=plt.imshow(arr, animated=True)
+                    plt.draw()
+                    plt.pause(0.0001)
+
+
+
+
+
+
+
+
+
+
+
     
 
 
@@ -128,89 +219,44 @@ def testing_funcs(N):
 
 
 
-def main():
+def more_testing(N):
     
-    
-    
-    if len(sys.argv) != 4:
-        print("%run checkpoint1.py <glauber/kawasaki> <N> <T>")
-        return
-    
-    
-    
-    f, dynamics_method, N, T = sys.argv
-    N, T = int(N), float(T)
-    
+
     arr = set_up(N)
-    #init fig
-    fig = plt.figure()
-    im=plt.imshow(arr, animated=True)
+
+    site = [random.randint(0, N-1), random.randint(0, N-1)]
+
+    #find neighbours addresses
+    nn_addresses = find_nn(site, N)
+
+    #now find spins at nn's
+    neighbours = np.zeros([4])
+    for i in range(len(nn_addresses)):
+        neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
+
+    
+    #find energy & energy change
+    #change = after - initial
+    energy_init = find_energy(neighbours, arr, site)
+    energy_fin = -1 * energy_init
+    delta_E = energy_fin - energy_init
     
     
+    print(delta_E)
+    if delta_E > 0:
+        t= 2
+        prob = np.exp(-delta_E / t)
+        print(prob)
+        p=random.uniform(0, 1)
+        if p < prob:
+            print(p, prob)
+            print('flipppppeeeeeeedddddddddddddddddddd')
+            arr[site[0], site[1]] *= -1
     
-    if dynamics_method == "glauber":
-        
-        #list for multiple
-        #for glauber want to use 1<T<3, dt = 0.1
-        #use just one for now
-        temps = np.array([T])
-        
-        for t in temps:
-            
-            
-            nsteps=1000000######################################HOW MANY
-            
-            
-            
-            for n in range(nsteps):
-                #choose site randomly
-                site = [random.randint(0, N-1), random.randint(0, N-1)]
-            
-            
-                #find neighbours addresses
-                nn_addresses = find_nn(site, N)
-    
-                #now find spins at nn's
-                neighbours = np.zeros([4])
-                for i in range(len(nn_addresses)):
-                    neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
-
-                
-                #find energy & energy change
-                #change = after - initial
-                energy_init = find_energy(neighbours, arr, site)
-                energy_fin = -1 * energy_init
-                delta_E = energy_fin - energy_init
-                
-                """
-                branch here
-                
-                case1:
-                    delta E <= 0
-                    flip occurs
-                    
-                case2:
-                    flip with probability of exp(-delta E / k_b T)
-                """
-                
-                if delta_E <= 0:
-                    arr[site[0], site[1]] *= -1
-
-                
-                else:
-                    prob = np.exp(-delta_E / t)
-
-                    if random.uniform(0, 1) < prob:
-                        arr[site[0], site[1]] *= -1
 
 
-                #update anim
-                if n%500 == 0:
 
-                    plt.cla()
-                    im=plt.imshow(arr, animated=True)
-                    plt.draw()
-                    plt.pause(0.0001)
+
 
 
 if __name__ == "__main__":

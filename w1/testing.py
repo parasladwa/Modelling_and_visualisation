@@ -34,8 +34,7 @@ for i in range(1000):
     plt.draw()
     plt.pause(0.0001)
 
-    
-    
+
     
     
     
