@@ -3,6 +3,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def set_up(N):
     #randomly set up array
     arr = np.zeros([N, N], dtype=int)
@@ -46,10 +47,6 @@ def find_nn(site, N):
 
     
 def find_energy(nn, arr, site):
-    
-    
-    
-    
     #find energy given nearest neighbours (np.arr)
     
     # E(S_site) = - J * sum [ S_site * S_nn ]
@@ -61,60 +58,338 @@ def find_energy(nn, arr, site):
         energy -= site_spin * spin
         
     return energy
+    
 
 
-
-
-def main():
+def main(auto = False, dynamics_method = "glauber", N = 15, T = 2):
     
+    sweep = N**2
+    nsteps = 100 * sweep
+    show_nth = 100
     
-    if len(sys.argv) != 4:
-        print("%run checkpoint1part2.py <glauber/kawasaki> <N> <T or auto>")
-        return
-    
-    f, dynamics_method, N, T = sys.argv
-    N = int(N)
-    
-    
-    if T == 'auto':
-        temps = np.arange(1, 3.1, 0.1)
-        temps = np.arange(1, 1.3, 0.1)
-        #why are they slightly off
+    if not auto:
         
-    else:
+        if len(sys.argv) != 4:
+            print("%run checkpoint1.py <glauber/kawasaki> <N> <T>")
+            return
+        
+        
+        f, dynamics_method, N, T = sys.argv
+        N, T = int(N), float(T)
+    
+    
+    arr = set_up(N)
+    
+    
+    
+    #init fig
+    if auto:
+        fig = plt.figure()
+        im=plt.imshow(arr, animated=True)
+    
+    
+    
+    if dynamics_method == "glauber":
+        
+        #list for multiple
+        #for glauber want to use 1<T<3, dt = 0.1
+        #use just one for now
         temps = np.array([T])
-    
-    
-    for t in temps:
-        t = round(t, 2)
         
         
-        nsteps = 2500
-        for n in range(nsteps):
+        
+        for t in temps:
             
-            #choose site randomly
-            site = [random.randint(0, N-1), random.randint(0, N-1)]
-    
-            #find neighbours addresses
-            nn_addresses = find_nn(site, N)
+
             
-            #now find spins at nn's
-            neighbours = np.zeros([4])
-            for i in range(len(nn_addresses)):
-                neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
-            
-            #find energy & energy change
-            #change = after - initial
-            energy_init = find_energy(neighbours, arr, site)
-            energy_fin = -1 * energy_init
-            delta_E = energy_fin - energy_init
-            
-            
-            
-            if dynamics_method == "kawasaki":
-                #compute a flip again
+            for n in range(nsteps):
+                        
+                #choose site randomly
+                site = np.array([random.randint(0, N-1), \
+                                 random.randint(0, N-1)])
                 
-            
-            
+                #find neighbours addresses
+                nn_addresses = find_nn(site, N)
     
-main()
+                #now find spins at nn's
+                neighbours = np.zeros([4])
+                for i in range(len(nn_addresses)):
+                    neighbours[i] = arr[int(nn_addresses[i][0])] \
+                                        [int(nn_addresses[i][1])]
+                
+                #find energy & energy change
+                #change = after - initial
+                energy_init = find_energy(neighbours, arr, site)
+                energy_fin = -1 * energy_init
+                delta_E = energy_fin - energy_init
+                
+                
+                """
+                branch here
+                
+                case1:
+                    delta E <= 0
+                    flip occurs
+                    
+                case2:
+                    flip with probability of exp(-delta E / k_b T)
+                """
+                
+                
+                if delta_E <= 0:
+                    arr[site[0], site[1]] *= -1
+                    
+                
+                else:
+                    prob = np.exp(-delta_E / t)
+                    if random.uniform(0, 1) < prob:
+                        arr[site[0], site[1]] *= -1
+
+
+                #update anim
+                if n % show_nth == 0 and not auto:
+
+                    plt.cla()
+                    im=plt.imshow(arr, animated=True)
+                    plt.draw()
+                    plt.pause(0.0001)
+                
+                    
+                    M = np.sum(arr)
+                    print(M)                    
+                    
+
+
+    elif dynamics_method == "kawasaki":
+       
+        
+        temps = np.array([T])
+        
+        for t in temps:
+
+            
+            for n in range(nsteps):
+                
+                
+                #choose 2 sites randomly
+                sites = np.array([[random.randint(0, N-1), \
+                                   random.randint(0, N-1)], \
+                                  [random.randint(0, N-1), \
+                                   random.randint(0, N-1)]])
+                    
+                #eliminate equal spins case
+                if arr[tuple(sites[0])] == arr[tuple(sites[1])]:
+                    continue
+                
+                
+                
+                #initial energy
+                energy_init = 0
+                
+                site_1 = site[0]
+                site_2 = site[1]
+                
+                nn_addresses_1 = find_nn(site_1, N)
+                nn_addresses_2 = find_nn(site_2, N)
+                
+                neighbours_1, neighbours_2 = np.zeros([4]), np.zeros([4])
+                for i in range(len(nn_addresses_1)):
+                    neighbours_1[i] = arr[int(nn_addresses_1[i][0])] \
+                                        [int(nn_addresses_1[i][0])]
+                    neighbours_2[i] = arr[int(nn_addresses_2[i][0])] \
+                                        [int(nn_addresses_2[i][0])]
+            
+
+                energy_init = find_energy(neighbours_1, arr, site_1) + \
+                                    find_energy(neighbours_2, arr, site_2)
+                
+                energy_fin = find_energy(neighbours_1, arr, site_1, )
+                
+                #find energy & energy change
+                #change = after - initial
+                energy_init = find_energy(neighbours, arr, site)
+                energy_fin = -1 * energy_init
+                delta_E = energy_fin - energy_init
+                net_delta_E = 0
+                
+                
+
+                
+                
+                
+                '''
+                #consider consecutive spinflips
+                net_delta_E = 0
+                for site in sites:
+                    
+                    neighbours = np.zeros([4])
+                    nn_addresses = find_nn(site, N)
+                    
+                    for i in range(len(nn_addresses)):
+                        neighbours[i] = arr[int(nn_addresses[i][0])] \
+                                            [int(nn_addresses[i][1])]
+                            
+
+                    #find energy & energy change
+                    #change = after - initial
+                    energy_init = find_energy(neighbours, arr, site)
+                    energy_fin = -1 * energy_init
+                    delta_E = energy_fin - energy_init
+                    
+                    net_delta_E += delta_E
+                 
+                if (np.linalg.norm(np.asarray(sites[0]-sites[1], \
+                                              dtype = "float"))) == 1 :
+                    net_delta_E += 4
+                    print(f"NN, {net_delta_E}")
+                '''
+                
+                if net_delta_E <= 0:
+                    arr[tuple(sites[0])] *= -1
+                    arr[tuple(sites[1])] *= -1
+                
+                
+                else:
+                    prob = np.exp(-delta_E / t)
+                    
+                    if random.uniform(0, 1) < prob:
+                        arr[tuple(sites[0])] *= -1
+                        arr[tuple(sites[1])] *= -1
+
+
+
+                #update anim
+                if n % show_nth == 0 and not auto:
+
+                    plt.cla()
+                    im=plt.imshow(arr, animated=True)
+                    plt.draw()
+                    plt.pause(0.0001)
+                    
+            
+
+            
+            
+def data_analysis():
+    
+    main(auto = True)
+
+#data_analysis()
+
+
+                    
+def testing_funcs(N):
+    '''
+    so far this is to test functions
+    will be in a loop later once funcs are completed
+
+    '''
+    #random arr
+    arr = set_up()    
+    
+    #choose site randomly
+    site = [random.randint(0, N-1), random.randint(0, N-1)]
+    site = np.array([0, 0], dtype = int)
+    
+    #find neighbours POOR VARIABLE NAME , THIS IS NEIGHBOUR ADRESSES NOT NEIGHBOURS fix this
+    nn_addresses = find_nn(site)
+    
+    
+    #now find values at nn's
+    neighbours = np.zeros([4])
+    for i in range(len(nn_addresses)):
+        neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
+    
+    
+    #find energy & energy change
+    energy_init = find_energy(neighbours, arr, site)
+    
+    # change = after - initial
+    energy_fin = -1 * energy_init
+    delta_E = energy_fin - energy_init
+    print(delta_E)
+    
+    print(arr)
+    
+    
+    """
+    branch here
+    
+    case1:
+        delta E <= 0
+        flip occurs
+        
+    case2:
+        flip with probability of exp(-delta E / k_b T)
+    """
+    
+    if delta_E <= 0:
+        arr[site[0], site[1]] *= -1
+        print("E loss flipped")
+    
+    else:
+        prob = np.exp(-delta_E / T)
+        print(prob)
+        
+        #consider flip (rng)
+        if random.uniform(0, 1) < prob:
+            arr[site[0], site[1]] *= -1
+            print("rng flipped")
+
+
+def more_testing(N):
+    
+
+    arr = set_up(N)
+
+    site = [random.randint(0, N-1), random.randint(0, N-1)]
+
+    #find neighbours addresses
+    nn_addresses = find_nn(site, N)
+
+    #now find spins at nn's
+    neighbours = np.zeros([4])
+    for i in range(len(nn_addresses)):
+        neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
+
+    
+    #find energy & energy change
+    #change = after - initial
+    energy_init = find_energy(neighbours, arr, site)
+    energy_fin = -1 * energy_init
+    delta_E = energy_fin - energy_init
+    
+    
+    print(delta_E)
+    if delta_E > 0:
+        t= 2
+        prob = np.exp(-delta_E / t)
+        print(prob)
+        p=random.uniform(0, 1)
+        if p < prob:
+            print(p, prob)
+            print('flipppppeeeeeeedddddddddddddddddddd')
+            arr[site[0], site[1]] *= -1
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+#get rid of that line
+#work out the visuals
+
+
+# for kawasaki - consider if probability works - flib both? or check twice?
+
+
+#change glauber tuple
+#change temps loop
+#initial equilibration state
+
+
+
+
+
