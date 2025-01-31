@@ -1,11 +1,7 @@
 import sys
-import math
 import random
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-
 
 
 def set_up(N):
@@ -97,15 +93,17 @@ def main():
             for n in range(nsteps):
                 
                 #choose site randomly
-                site = [random.randint(0, N-1), random.randint(0, N-1)]
-            
+                site = np.array([random.randint(0, N-1), \
+                                 random.randint(0, N-1)])
+                
                 #find neighbours addresses
                 nn_addresses = find_nn(site, N)
     
                 #now find spins at nn's
                 neighbours = np.zeros([4])
                 for i in range(len(nn_addresses)):
-                    neighbours[i] = arr[int(nn_addresses[i][0])][int(nn_addresses[i][1])]
+                    neighbours[i] = arr[int(nn_addresses[i][0])] \
+                                        [int(nn_addresses[i][1])]
                 
                 #find energy & energy change
                 #change = after - initial
@@ -137,26 +135,94 @@ def main():
 
 
                 #update anim
-                if n%100 == 0:
+                if n%10 == 0:
 
                     plt.cla()
                     im=plt.imshow(arr, animated=True)
                     plt.draw()
                     plt.pause(0.0001)
+                
+                    
+                    M = np.sum(arr)
+                    print(M)
+                    
 
 
 
+    elif dynamics_method == "kawasaki":
+       
+        
+        temps = np.array([T])
+        
+        for t in temps:
+            
+            nsteps = 2500000
+            
+            for n in range(nsteps):
+                
+                #choose 2 sites randomly
+                sites = np.array([[random.randint(0, N-1), \
+                                   random.randint(0, N-1)], \
+                                  [random.randint(0, N-1), \
+                                   random.randint(0, N-1)]])
+                    
+                #eliminate equal spins case
+                if arr[tuple(sites[0])] == arr[tuple(sites[1])]:
+                    continue
+                
+                
+                #consider consecutive spinflips
+                net_delta_E = 0
+                for site in sites:
+                    
+                    neighbours = np.zeros([4])
+                    nn_addresses = find_nn(site, N)
+                    
+                    for i in range(len(nn_addresses)):
+                        neighbours[i] = arr[int(nn_addresses[i][0])] \
+                                            [int(nn_addresses[i][1])]
+                            
+
+                    #find energy & energy change
+                    #change = after - initial
+                    energy_init = find_energy(neighbours, arr, site)
+                    energy_fin = -1 * energy_init
+                    delta_E = energy_fin - energy_init
+                    
+                    net_delta_E += delta_E
+                
+                
+                if net_delta_E <= 0:
+                    arr[tuple(sites[0])] *= -1
+                    arr[tuple(sites[1])] *= -1
+                
+                
+                else:
+                    prob = np.exp(-delta_E / t)
+                    
+                    if random.uniform(0, 1) < prob:
+                        arr[tuple(sites[0])] *= -1
+                        arr[tuple(sites[1])] *= -1
 
 
 
+                #update anim
+                if n%500 == 0:
 
-
-
-
-
-    
-
-
+                    plt.cla()
+                    im=plt.imshow(arr, animated=True)
+                    plt.draw()
+                    plt.pause(0.0001)
+                    
+            
+                    
+                    M = np.sum(arr)
+                    print(M)
+            
+            
+            
+            
+                    
 def testing_funcs(N):
     '''
     so far this is to test functions
@@ -214,9 +280,6 @@ def testing_funcs(N):
         if random.uniform(0, 1) < prob:
             arr[site[0], site[1]] *= -1
             print("rng flipped")
-# testing_funcs(50)
-
-
 
 
 def more_testing(N):
@@ -252,11 +315,6 @@ def more_testing(N):
             print(p, prob)
             print('flipppppeeeeeeedddddddddddddddddddd')
             arr[site[0], site[1]] *= -1
-    
-
-
-
-
 
 
 if __name__ == "__main__":
@@ -270,7 +328,14 @@ if __name__ == "__main__":
 #sweeps????????????????????
 
 
+# for kawasaki - consider if probability works - flib both? or check twice?
+# must it be command line ?
 
+
+# same function or too much hastle?
+# handle false inputs 'glaber' ?
+
+#change glauber tuple
 
 
 
