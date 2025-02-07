@@ -75,9 +75,9 @@ def full_energy(arr):
 
 
 def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
-         nsweep = 100, show_anim = True, log_freq = -1):
+         nsweep = 1000, show_anim = True, log_freq = -1):
     
-    show_nth = 10
+    show_nth = 10*2500
 
     if not auto:
         
@@ -360,7 +360,7 @@ def jackknife(data, true_data, which):
 
 def plots_and_logging():
     
-    FILENAMES = ['glauber_50_1000.txt', 'kawasaki_temp.txt']
+    FILENAMES = ['glauber_50_1000.txt', 'kawasaki_50_1000.txt']
     METHODS = ['glauber', 'kawasaki']
     N = 50
     
