@@ -1,12 +1,9 @@
 import sys
 import time
-import scipy
 import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from astropy.stats import jackknife_stats
-
 
 def set_up(N):
     #randomly set up array
@@ -161,9 +158,9 @@ def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
     
     if dynamics_method == "kawasaki":
                    
-
+        SKIPPED, COUNTER = 0, 0
         for n in range(nsteps):
-
+            COUNTER += 1
             
             #choose 2 sites randomly
             sites = np.array([[random.randint(0, N-1), \
@@ -173,6 +170,7 @@ def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
                 
             #eliminate equal spins case
             if arr[tuple(sites[0])] == arr[tuple(sites[1])]:                   
+                SKIPPED+=1
                 continue
 
             
@@ -230,13 +228,10 @@ def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
                 M = np.sum(arr)
                 outfile.write(f" {dynamics_method} {T} {M} "
                               f"{complete_E}\n")
+        print(SKIPPED/COUNTER, SKIPPED, COUNTER)
     return arr
 
 main()
-
-
-
-
 
 start = time.time()
 global temps
@@ -250,56 +245,49 @@ def collect_data():
     
     global outfile
     
-    FILENAME = '.txt'
-    METHOD = 'kawasaki'
-    MEASUREMENTS = 1000
-    N=50
-    
-    
-
-    confirm = input(f"      method : {METHOD}\n"
-                    f"           N : {N}\n"
-                    f"measurements : {MEASUREMENTS}\n"
-                    f"    filename : {FILENAME}\n\n"
-                    f"CONFIRM ??? [y/n] :")
-    
-    if confirm != 'y':
-        print('terminated')
-        return
-    
-    
-    if METHOD == 'glauber':
-        arr = np.ones((N, N))
-    elif METHOD == 'kawasaki':
-        arr = set_up(N)
-    else:
-        print('terminated - incorrect method')
-        return
-    
-    
-    outfile = open(FILENAME, 'w')
+    outfile = open('glauber.txt', 'w')
     outfile.write('method T M E\n')
+                   
+    # 'pre equilibrated'
+    N=50
+    arr = np.ones([N, N], dtype=int)
+    
+    
+    
+    
+    # GLAUBERGLAUBERGLAUBERGLAUBERGLAUBERGLAUBERGLAUBERGLAUBERGLAUBERGLAUBER
 
+    
+    # 1000 measurements per temperature
     # 10 sweeps in between measurement
     # 1 and 3 in steps of 0.1
     global temps
     temps = np.arange(1, 3.1, 0.1)
     for t in temps:
         print(t)
-        start1= time.time()
-        arr = main(auto = True, dynamics_method = METHOD, N = N, T = t, \
+        arr = main(auto = True, dynamics_method = "glauber", N = N, T = t, \
                    arr = arr, nsweep = 100, show_anim = False, log_freq = -1)
-        arr = main(auto = True, dynamics_method = METHOD, N = N, T = t, \
-                   arr = arr, nsweep = 10 * MEASUREMENTS, show_anim = False,\
-                       log_freq = 10)
-        
-        end1 = time.time()
-        print(f"time ; {end1-start1}")
+        arr = main(auto = True, dynamics_method = "glauber", N = N, T = t, \
+                   arr = arr, nsweep = 10 * 10, show_anim = False, log_freq = 10)
+                              #10 * num measurements
     print(t)
     
+    
+    # KAWASAKIKAWASAKIKAWASAKIKAWASAKIKAWASAKIKAWASAKIKAWASAKIKAWASAKIKAWASAKI
+    # N=50
+    # arr = np.ones([N, N], dtype=int)
+    
+    # for t in temps:
+    #     print(t)
+    #     arr = main(auto = True, dynamics_method = "kawasaki", N = N, T = t, \
+    #                arr = arr, nsweep = 100, show_anim = False, log_freq = -1)
+    #     arr = main(auto = True, dynamics_method = "kawasaki", N = N, T = t, \
+    #                arr = arr, nsweep = 10 * 2, show_anim = False, log_freq = 10)
+    #                           #10 * num measurements
+    # print(t)
+    
     outfile.close()
-    
-    
+
 #collect_data()
 
 
@@ -308,287 +296,10 @@ def collect_data():
 
 
 
-
-
-
-def jackknife(data, true_data, which):
-    C_err = {float(t):float(0) for t in data.keys()}
-    for t in data.keys():
-        
-        
-        temp_c = data[t]
-        Cs = np.array([], dtype = float)
-        true = true_data[t]
-        
-        for i in range(len(temp_c)):
-            temp_data = np.delete(temp_c, i)
-            
-            
-            e1, e2 = np.mean(temp_data**2), np.mean(temp_data)**2
-            if which == 'C':
-                C = (e1 - e2) / (50 * (t**2))
-            if which == 'X':
-                C = (e1 - e2) / (50 * t)
-            Cs = np.append(Cs, C)
-                
-        s = 0
-        for ci in Cs:
-            s += (ci - true)**2
-        C_err[t] = (s)**(1/2)
-        
-        
-    return C_err
-        
-        
-            
-
-
-
-
-def plots_and_logging():
-    
-    FILENAMES = ['KAWASAKI_50_1000.txt', 'GLAUBER_50_1000.txt']
-    METHODS = ['kawasaki', 'glauber']
-    N = 50
-    
-    
-    outfile_name = "all_results.txt"
-    datafile = open(outfile_name, 'w')
-    datafile.write('method T E E_err C C_err M M_err X X_err\n')
-
-    NET_DATA = []
-    for i in range(len(FILENAMES)):
-        
-        FILENAME, METHOD = FILENAMES[i], METHODS[i]
-    
-        with open(FILENAME, 'r') as f:
-            lines = f.readlines()
-        
-        data = []
-        for line in lines:
-            data.append(line.split())
-            
-    
-        
-        #specific heat and average energy
-        E_dict = {float(t):[] for t in temps}
-        for line in data:
-            if line[0] == METHOD:
-                E_dict[float(line[1])].append(float(line[3]))
-        
-        
-        C_dict = {float(t) : [] for t in temps}
-        E_average_dict = {float(t) : None for t in temps} 
-        
-        for key in E_dict:             
-            Es = np.array(E_dict[key])
-            E_average_dict[key] = np.mean(Es)
-            
-            E1, E2 = np.mean(Es**2), np.mean(Es)**2
-            
-            #
-            if METHOD == "glauber":
-                print(f" <e2> {E1} <e>2 {E2}")
-            #
-            C_dict[key] = (E1 - E2) / (N*(key**2))
-            
-            if METHOD == 'kawasaki':
-                C_dict[key] = C_dict[key] / (N**2)
-            
-        
-        
-        E_err = {float(t) : float(0) for t in temps}
-        for t in temps:
-            values = np.array(E_dict[t])
-            er1, er2 = np.mean(values**2), np.mean(values)**2
-            error = ( (er1-er2) / 1000 )**(1/2)
-            E_err[t] = error
-        
-        
-        C_err = jackknife(E_dict, C_dict, 'C')
-        
-        
-        #plt.scatter(C_dict.keys(), C_dict.values())
-        plt.errorbar(C_dict.keys(), C_dict.values(), yerr = list(C_err.values()), ecolor = 'r')
-        plt.title(f"Specific Heat - {METHOD.capitalize()}")
-        plt.show()
-        
-        
-        plt.errorbar(E_average_dict.keys(), E_average_dict.values(),\
-                     yerr = list(E_err.values()), ecolor = 'r')
-        plt.title(f"Average Energy {METHOD.capitalize()}")
-        plt.show()
-        
-        
-        
-        
-        
-        
-        #susceptibility and average absolute magnetisation
-
-        M_dict = {float(t) : [] for t in temps}
-        for line in data:
-            if line[0] == METHOD:
-                M_dict[float(line[1])].append(float(line[2]))
-        
-        
-        X_dict = {float(t) : [] for t in temps}
-        M_average_dict = {float(t) : None for t in temps}
-        for key in M_dict:
-            
-            Ms = np.array(M_dict[key])
-            M_average_dict[key] = abs(np.mean(Ms))
-            
-            M1, M2 = np.mean(Ms**2), np.mean(Ms)**2
-            X_dict[key] = (M1 - M2) / (N * key)
-        
-        
-        # M_err
-        M_err = {float(t) : float(0) for t in temps}
-        for t in temps:
-            values = np.array( M_dict[t])
-            er1, er2 = np.mean(values**2), np.mean(values)**2
-            error = ( (er1-er2) / 1000 )**(1/2)
-            M_err[t] = error
-        
-        
-        
-        X_err = jackknife(M_dict, X_dict, 'X')
-        if METHOD == 'glauber':
-            plt.errorbar(X_dict.keys(), X_dict.values(), list(X_err.values()), ecolor = 'r')
-            #plt.plot(X_dict.keys(), X_dict.values())
-            plt.title(f"Susceptibility - {METHOD.capitalize()}")
-            plt.show()
-            
-            #plt.plot(M_average_dict.keys(), M_average_dict.values())
-            plt.errorbar(M_average_dict.keys(), M_average_dict.values(), \
-                         yerr = list(M_err.values()), ecolor = 'r')
-            plt.title(f"Average Absolute Magnetisation - {METHOD.capitalize()}")
-            plt.show()
-    
-        
-        
-        
-        NET_DATA.append([METHOD, E_average_dict, E_err, C_dict, C_err, M_average_dict, M_err, X_dict, X_err])
-        
-        f.close()
-
-    
-
-    for i, d in enumerate(NET_DATA):
-        for t in d[1].keys():
-            #('method T E E_err C C_err M M_err X X_err\n')
-            datafile.write(f"{d[0]} {t} "
-                           f"{d[1][t]} {d[2][t]} " # E delE
-                           f"{d[3][t]} {d[4][t]} " # C delC
-                           f"{d[5][t]} {d[6][t]} " # M delM
-                           f"{d[7][t]} {d[8][t]}\n") #X X_err
-    
- 
-        
-    datafile.close()
-        
-plots_and_logging()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-def create_plots_old():
-    
-    FILENAME = 'KAWASAKI_50_1000.txt'
-    METHOD = 'kawasaki'
-    N = 50
-
-    with open(FILENAME, 'r') as f:
-        lines = f.readlines()
-    
-    data = []
-    for line in lines:
-        data.append(line.split())
-        
-
-    
-    #specific heat and average energy
-    E_dict = {float(t):[] for t in temps}
-    for line in data:
-        if line[0] == METHOD:
-            E_dict[float(line[1])].append(float(line[3]))
-    
-    
-    C_dict = {float(t) : [] for t in temps}
-    E_average_dict = {float(t) : None for t in temps} 
-    
-    for key in E_dict:
-        
-        Es = np.array(E_dict[key])
-        E_average_dict[key] = np.mean(Es)
-        
-        E1, E2 = np.mean(Es**2), np.mean(Es)**2
-        C_dict[key] = (E1 - E2) / (N*(key**2))
-        
-    plt.plot(C_dict.keys(), C_dict.values())
-    plt.title(f"Specific Heat - {METHOD.capitalize()}")
-    plt.show()
-    
-    plt.plot(E_average_dict.keys(), E_average_dict.values())
-    plt.title(f"Average Energy - {METHOD.capitalize()}")
-    plt.show()
-    
-    
-    
-    #susceptibility and average absolute magnetisation
-    M_dict = {float(t) : [] for t in temps}
-    for line in data:
-        if line[0] == METHOD:
-            M_dict[float(line[1])].append(float(line[2]))
-    
-    
-    X_dict = {float(t) : [] for t in temps}
-    M_average_dict = {float(t) : None for t in temps}
-    for key in M_dict:
-        
-        Ms = np.array(M_dict[key])
-        M_average_dict[key] = abs(np.mean(Ms))
-        
-        M1, M2 = np.mean(Ms**2), np.mean(Ms)**2
-        X_dict[key] = (M1 - M2) / (N * key)
-    
-
-    
-    
-    plt.plot(X_dict.keys(), X_dict.values())
-    plt.title(f"Susceptibility - {METHOD.capitalize()}")
-    plt.show()
-    
-    plt.plot(M_average_dict.keys(), M_average_dict.values())
-    plt.title("Average Absolute Magnetisation - {METHOD.capitalize()}")
-    plt.show()
-
-#create_plots()    
-
-
-
-
-
-end = time.time()
-print(f"net time ; {end-start}")
-                  
-
-
-
-
-
-def reading_data_working_old():
+def reading_data():
     
     #read file
-    with open('GLAUBER_50_1000.txt', 'r') as f:
+    with open('glauber5010.txt', 'r') as f:
         lines = f.readlines()
     data = []
     for line in lines:
@@ -611,7 +322,7 @@ def reading_data_working_old():
         M_average_dict_g[key] = abs(np.mean(Ms_g))
         
         m1, m2 = np.mean(Ms_g**2), np.mean(Ms_g)**2
-        N = 50
+        N = 15
         X_dict_g[key] = (m1-m2) / (N*key)
     
     plt.plot(X_dict_g.keys(), X_dict_g.values())
@@ -637,8 +348,10 @@ def reading_data_working_old():
         E_average_dict_g[key] = np.mean(Es_g)
         
         E1, E2 = np.mean(Es_g**2), np.mean(Es_g)**2
+        N = 15
         C_dict_g[key] = (E1 - E2) / (N*(key**2))
-   
+
+    print(C_dict_g)    
 
     plt.plot(C_dict_g.keys(), C_dict_g.values())
     plt.title("Specific Heat")
@@ -648,6 +361,24 @@ def reading_data_working_old():
     plt.title("Glauber - Average Energy")
     plt.show()
     
+        
+    
+    
+reading_data()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def reading_data1():
     
@@ -665,6 +396,12 @@ def reading_data1():
 
     plt.scatter(temps, chi)
     plt.show()
+
+#reading_data1()
+
+
+
+
 
 
 def reading_data2():
@@ -701,6 +438,30 @@ def reading_data2():
     plt.plot(C_values.keys(), C_values.values())
     plt.title("specific heat capacity")
     plt.show()
+    
+#reading_data2()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end = time.time()
+print(f"time ; {end-start}")
+                  
+
+    
+
+
 
 
 def testing_funcs(N):
@@ -799,13 +560,23 @@ def more_testing(N):
 
 
 
-# THAT ONE GRAPH
-# PRINT ERRORS
-#
-#
-#
-#
-#
-#
-#
-#
+
+
+#get rid of that line
+#work out the visuals
+
+
+# for kawasaki - consider if probability works - flib both? or check twice?
+
+
+#change glauber tuple
+#change temps loop
+#initial equilibration state
+
+
+#  null cases
+
+
+
+
+

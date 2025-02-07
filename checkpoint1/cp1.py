@@ -77,7 +77,7 @@ def full_energy(arr):
 def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
          nsweep = 100, show_anim = True, log_freq = -1):
     
-    show_nth = 10
+    show_nth = 100
 
     if not auto:
         
@@ -126,17 +126,18 @@ def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
             energy_fin = -1 * energy_init
             delta_E = energy_fin - energy_init
             
-            complete_E += delta_E
+            
             
             
             if delta_E <= 0:
                 arr[site[0], site[1]] *= -1
-                
+                complete_E += delta_E
             
             else:
                 prob = np.exp(-delta_E / T)
                 if random.uniform(0, 1) < prob:
                     arr[site[0], site[1]] *= -1
+                    complete_E += delta_E
 
 
             #update anim
@@ -172,53 +173,69 @@ def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
                                random.randint(0, N-1)]])
                 
             #eliminate equal spins case
-            if arr[tuple(sites[0])] == arr[tuple(sites[1])]:                   
+            if arr[tuple(sites[0])] == arr[tuple(sites[1])]:
                 continue
-
+           
             
             
-            
-            #consider consecutive spinflips
-            net_delta_E = 0
-            for site in sites:
-                
-                neighbours = np.zeros([4])
-                nn_addresses = find_nn(site, N)
-                
-                for i in range(len(nn_addresses)):
-                    neighbours[i] = arr[int(nn_addresses[i][0])] \
-                                        [int(nn_addresses[i][1])]
-                        
-
-                #find energy & energy change
-                #change = after - initial
-                energy_init = find_energy(neighbours, arr, site)
-                energy_fin = -1 * energy_init
-                delta_E = energy_fin - energy_init
-                
-                net_delta_E += delta_E
-                complete_E += net_delta_E
+            # E before
+            nn_addresses0 = find_nn(sites[0], N)
+            neighbours0 = np.zeros([4])
+            for i in range(len(nn_addresses0)):
+                neighbours0[i] = arr[int(nn_addresses0[i][0])] \
+                                    [int(nn_addresses0[i][1])]
+            nn_addresses1 = find_nn(sites[1], N)
+            neighbours1 = np.zeros([4])
+            for i in range(len(nn_addresses1)):
+                neighbours1[i] = arr[int(nn_addresses1[i][0])] \
+                                    [int(nn_addresses1[i][1])]
+            energy_init = find_energy(neighbours0, arr, sites[0]) + \
+                            find_energy(neighbours1, arr, sites[1])
              
-            if (np.linalg.norm(np.asarray(sites[0]-sites[1], \
-                                          dtype = "float"))) == 1 :
-                net_delta_E += 4
+                
+            #swap and E after
+            arr[tuple(sites[0])] *= -1
+            arr[tuple(sites[1])] *= -1
+            
+            neighbours0 = np.zeros([4])
+            for i in range(len(nn_addresses0)):
+                neighbours0[i] = arr[int(nn_addresses0[i][0])] \
+                                    [int(nn_addresses0[i][1])]
+            neighbours1 = np.zeros([4])
+            for i in range(len(nn_addresses1)):
+                neighbours1[i] = arr[int(nn_addresses1[i][0])] \
+                                    [int(nn_addresses1[i][1])]
+
+            energy_final = find_energy(neighbours0, arr, sites[0]) + \
+                            find_energy(neighbours1, arr, sites[1])
             
             
-            if net_delta_E <= 0:
+            delta_E = energy_final - energy_init
+            
+            
+            
+            arr[tuple(sites[0])] *= -1
+            arr[tuple(sites[1])] *= -1
+            
+            if delta_E <= 0:
+                complete_E += delta_E
                 arr[tuple(sites[0])] *= -1
                 arr[tuple(sites[1])] *= -1
             
             else:
-                prob = np.exp(-net_delta_E / T)
-                
+                prob = np.exp(-delta_E / T)
+               
                 if random.uniform(0, 1) < prob:
+                    complete_E += delta_E
                     arr[tuple(sites[0])] *= -1
                     arr[tuple(sites[1])] *= -1
+            
+                    
 
 
             #update anim
             if n % show_nth == 0 and show_anim:
-
+                print(f"After: complete_E = {complete_E}")
                 plt.cla()
                 im=plt.imshow(arr, animated=True)
                 plt.draw()
@@ -250,10 +267,10 @@ def collect_data():
     
     global outfile
     
-    FILENAME = '.txt'
+    FILENAME = 'kawasaki_temp.txt'
     METHOD = 'kawasaki'
-    MEASUREMENTS = 1000
-    N=50
+    MEASUREMENTS = 500
+    N=10
     
     
 
@@ -347,8 +364,8 @@ def jackknife(data, true_data, which):
 
 def plots_and_logging():
     
-    FILENAMES = ['KAWASAKI_50_1000.txt', 'GLAUBER_50_1000.txt']
-    METHODS = ['kawasaki', 'glauber']
+    FILENAMES = ['glauber_15_10.txt', 'KAWASAKI_50_1000 - Copy.txt']
+    METHODS = ['glauber', 'kawasaki']
     N = 50
     
     
@@ -367,16 +384,18 @@ def plots_and_logging():
         data = []
         for line in lines:
             data.append(line.split())
+        
             
     
         
         #specific heat and average energy
         E_dict = {float(t):[] for t in temps}
         for line in data:
+
             if line[0] == METHOD:
                 E_dict[float(line[1])].append(float(line[3]))
-        
-        
+
+    
         C_dict = {float(t) : [] for t in temps}
         E_average_dict = {float(t) : None for t in temps} 
         
@@ -386,14 +405,10 @@ def plots_and_logging():
             
             E1, E2 = np.mean(Es**2), np.mean(Es)**2
             
-            #
-            if METHOD == "glauber":
-                print(f" <e2> {E1} <e>2 {E2}")
-            #
             C_dict[key] = (E1 - E2) / (N*(key**2))
             
-            if METHOD == 'kawasaki':
-                C_dict[key] = C_dict[key] / (N**2)
+            # if METHOD == 'kawasaki':
+            #     C_dict[key] = C_dict[key] / (N**2)
             
         
         
@@ -408,8 +423,9 @@ def plots_and_logging():
         C_err = jackknife(E_dict, C_dict, 'C')
         
         
-        #plt.scatter(C_dict.keys(), C_dict.values())
-        plt.errorbar(C_dict.keys(), C_dict.values(), yerr = list(C_err.values()), ecolor = 'r')
+
+        plt.errorbar(C_dict.keys(), C_dict.values(),\
+                     yerr = list(C_err.values()), ecolor = 'r')
         plt.title(f"Specific Heat - {METHOD.capitalize()}")
         plt.show()
         
@@ -455,12 +471,11 @@ def plots_and_logging():
         
         X_err = jackknife(M_dict, X_dict, 'X')
         if METHOD == 'glauber':
-            plt.errorbar(X_dict.keys(), X_dict.values(), list(X_err.values()), ecolor = 'r')
-            #plt.plot(X_dict.keys(), X_dict.values())
+            plt.errorbar(X_dict.keys(), X_dict.values(), list(X_err.values()),\
+                         ecolor = 'r')
             plt.title(f"Susceptibility - {METHOD.capitalize()}")
             plt.show()
             
-            #plt.plot(M_average_dict.keys(), M_average_dict.values())
             plt.errorbar(M_average_dict.keys(), M_average_dict.values(), \
                          yerr = list(M_err.values()), ecolor = 'r')
             plt.title(f"Average Absolute Magnetisation - {METHOD.capitalize()}")
@@ -469,7 +484,8 @@ def plots_and_logging():
         
         
         
-        NET_DATA.append([METHOD, E_average_dict, E_err, C_dict, C_err, M_average_dict, M_err, X_dict, X_err])
+        NET_DATA.append([METHOD, E_average_dict, E_err, C_dict, C_err,\
+                         M_average_dict, M_err, X_dict, X_err])
         
         f.close()
 
