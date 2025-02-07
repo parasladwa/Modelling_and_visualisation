@@ -82,7 +82,7 @@ def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
     if not auto:
         
         if len(sys.argv) != 4:
-            print("%run checkpoint1.py <glauber/kawasaki> <N> <T>")
+            print("%run cp1.py <glauber/kawasaki> <N> <T>")
             return
         
         
@@ -509,7 +509,7 @@ def plots_and_logging():
         
     datafile.close()
         
-plots_and_logging()
+#plots_and_logging()
     
     
     
