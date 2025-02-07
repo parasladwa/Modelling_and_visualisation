@@ -8,6 +8,9 @@ TO RUN VISUALISATION:
 	note : depending on ide execution may differ, eg spyder uses "%run"
 		may need to swap this
 
+	default shown sweeps = 100
+	can alter this my nsweep parameter of main
+
 
 
 

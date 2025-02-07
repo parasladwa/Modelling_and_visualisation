@@ -77,7 +77,7 @@ def full_energy(arr):
 def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
          nsweep = 100, show_anim = True, log_freq = -1):
     
-    show_nth = 100
+    show_nth = 10
 
     if not auto:
         
@@ -232,7 +232,6 @@ def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
 
             #update anim
             if n % show_nth == 0 and show_anim:
-                print(f"After: complete_E = {complete_E}")
                 plt.cla()
                 im=plt.imshow(arr, animated=True)
                 plt.draw()
