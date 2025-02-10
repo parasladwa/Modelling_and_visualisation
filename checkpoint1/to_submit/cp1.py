@@ -77,7 +77,7 @@ def full_energy(arr):
 def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
          nsweep = 1000, show_anim = True, log_freq = -1):
     
-    show_nth = 10*2500
+    show_nth = 10
 
     if not auto:
         
