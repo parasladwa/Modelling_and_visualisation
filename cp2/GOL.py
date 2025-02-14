@@ -7,12 +7,26 @@ from scipy.signal import convolve2d
 
 start = time.time()
 
+
+
 def initialise(N, method):
     
     if method == 'random':
         arr = np.random.randint(0, 2, (N, N), dtype=int)
     
+    elif method == 'oscillator':
+        arr = np.zeros((N, N), dtype=int)
+        arr[N//2, N//2-1:N//2+2] = 1
+    
+    elif method == 'glider':
+        arr = np.zeros((N, N), dtype=int)
+        arr[N//2-1, N//2] = 1
+        arr[N//2, N//2+1] = 1
+        arr[N//2+1, N//2-1:N//2+2] = 1
+        
     return arr
+
+
 
 def main():
     
@@ -26,7 +40,12 @@ def main():
     show_plot = True
     steps_to_equil = np.array([], dtype=int)
     filename = 'GOL_data.txt'
+    nsteps_other = 200
+    coms = np.array([], dtype=float)
+    vels = np.array([], dtype=float)
 
+
+    
     if len(sys.argv) > 1:
         N = int(sys.argv[1])
         method = sys.argv[2]
@@ -38,6 +57,11 @@ def main():
         if method not in ['random', 'oscillator', 'glider']:
             print("invalid method")
             return
+        
+        
+        if method != 'random':
+            consider_equilibrated = nsteps_other
+    
     
     outfile = open(filename, 'w')
     outfile.write("run_no steps_to_equilibrate")
@@ -47,9 +71,7 @@ def main():
                        [1, 1, 1]])
     
     arr = np.empty([N, N])
-    if show_anim:
-        fig = plt.figure()
-        im=plt.imshow(arr, animated=True)
+    
     
     print(f"running {n_simulations} simulation(s)"
           f" with {N}x{N} grid and {method} initialisation")
@@ -101,7 +123,42 @@ def main():
                 plt.text(1, -1, f"{method}, step: {step}")
                 plt.draw()
                 plt.pause(0.01)
-                
+            
+            
+            if method == 'glider':
+                indices = np.argwhere(arr == 1)
+                com = np.sum(indices, axis = 0)/(len(indices))
+                coms = np.append(coms, com)
+                            
+        if method == 'glider':
+            
+            coms = coms.reshape(int(len(coms)/2), 2)
+            com_mag = np.sqrt(coms[:, 0]**2 + coms[:, 1]**2)
+            plt.figure()
+            plt.scatter(x = range(len(com_mag)), y = com_mag)
+            plt.xlabel("step")
+            plt.ylabel("magnitude of com")
+            plt.title("Centre of mass")
+            plt.show()
+                    
+            for i in range(len(coms)-1):
+                vel = (coms[i+1] - coms[i])
+                vels = np.append(vels, vel)
+            
+            vels = vels.reshape(int(len(vels)/2), 2)
+            vels = np.sqrt(vels[:, 0]**2 + vels[:, 1]**2)
+            
+            
+            plt.figure()
+            sns.scatterplot(x = range(len(vels)), y = vels)
+            plt.xlabel("step")
+            plt.ylabel("velocity [cells/step]")
+            plt.title("Velocity")
+            plt.show()
+            
+            iso_vel = vels[vels < 1]
+            print(f"average velocity: {np.mean(iso_vel)} cells / step")
+            
         #write to file
         outfile.write(f"{n_sim} {step}\n")
         
@@ -124,18 +181,4 @@ main()
 
 
 end = time.time()
-print(f"time = {end-start}")
-
-
-
-
-
-
-
-
-
-
-
-
-#save non equilibrated simulations?
-#initial conditions how? just random state?
+# print(f"time = {end-start}")
