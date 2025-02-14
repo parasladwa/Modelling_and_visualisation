@@ -170,7 +170,11 @@ def main():
         plt.show(block=True)
         
     if show_plot:	
+        plt.figure()
         sns.histplot(steps_to_equil, bins = 26)
+        plt.title("Histogram of steps to equilibrate")
+        plt.xlabel("time to steady state")
+        plt.ylabel("probability")
         plt.show()
 
     outfile.close()
