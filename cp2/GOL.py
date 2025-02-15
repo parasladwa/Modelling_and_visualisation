@@ -23,7 +23,7 @@ def initialise(N, method):
         arr[N//2-1, N//2] = 1
         arr[N//2, N//2+1] = 1
         arr[N//2+1, N//2-1:N//2+2] = 1
-        
+
     return arr
 
 
@@ -111,6 +111,7 @@ def main():
                 equilibrated = True
                 steps_to_equil = np.append(steps_to_equil, [step - consider_equilibrated + 1])                
                 print(f"steps to equilibrated: {steps_to_equil[-1]} in simulation {n_sim+1}")
+        
 
             #skip long calculations
             if step > max_steps:
