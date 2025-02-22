@@ -3,7 +3,6 @@ import time
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.signal import convolve2d
 
 start = time.time()
 
@@ -29,6 +28,9 @@ def initialise(N, method):
 
 
 def main():
+    
+    print(f"<run> <GOL.py> <N> <method>"
+          f"methods = random, oscillator, glider")
     
     #constants/parameters
     method = 'random'
@@ -187,3 +189,7 @@ main()
 
 end = time.time()
 # print(f"time = {end-start}")
+
+
+#do we need to store data for glider runs
+

@@ -1,0 +1,172 @@
+import time
+import argparse
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
+def initialise(N):
+    
+    arr = np.random.choice([0, 1, 2], size=(N, N))
+    
+    return arr
+
+
+
+
+
+
+def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log):
+
+    nsteps = nsweeps*N*N
+
+    average_infected = np.zeros(nsweeps)
+
+    if show_anim:
+        cmap = ListedColormap(["white", "darkred", "grey"])
+        fig = plt.figure()
+        im=plt.imshow(arr, animated=True)
+        
+    for step in range(nsteps):
+        
+        i, j = np.random.randint(0, N, 2)
+        
+        # S0 -> I1
+        if arr[i, j] == 0:
+            neighbors = [
+                ((i - 1) % N, j),
+                ((i + 1) % N, j),
+                (i, (j - 1) % N),
+                (i, (j + 1) % N) 
+            ]
+
+            if any(arr[x, y] == 1 for x, y in neighbors):
+                if np.random.rand() < p1:
+                    arr[i, j] = 1
+
+        # I1 -> R2
+        if arr[i, j] == 1:
+            if np.random.rand() < p2:
+                arr[i, j] = 2
+        
+        # R2 -> S0
+        if arr[i, j] == 2:
+            if np.random.rand() < p3:
+                arr[i, j] = 0
+    
+        if log and step % (N*N) == 0:
+            average_infected[step//(N*N)] = np.sum(arr == 1)
+        
+        
+        if show_anim and step % (show_nth%(N*N)) == 0:
+            plt.cla()
+            im=plt.imshow(arr, animated=True, cmap=cmap)
+            plt.title(f"SIRS Model, {case} case\nsweep: {step/(N*N)}, p1: {p1}, p2: {p2}, p3: {p3}")
+            plt.draw()
+            plt.pause(0.01)
+    return arr, np.mean(average_infected/(N*N))
+
+
+
+
+
+
+def main():
+    # S0 I1 R2
+
+    
+    cases = {
+        'absorbing' : np.array([0.1, 0.9, 0.9], dtype=np.float64),
+        'dynamic_eq' : np.array([0.7, 0.5, 0.5], dtype=np.float64),
+        'cyclic' : np.array([0.8, 0.1, 0.1], dtype=np.float64)
+    }
+    
+    
+    
+    parser = argparse.ArgumentParser(description="SIR Model Simulation with CLI Inputs")
+    parser.add_argument("-a", "--auto", action='store_true', help="full auto mode")
+    parser.add_argument("-N", "--N", type=int, default=50, help="Size of the lattice")
+    parser.add_argument("-s", "--show_anim", action= "store_true", help="Show animation of the simulation")
+    parser.add_argument("-ns", "--nsweeps", type=int, default=100, help="Number of sweeps")
+    parser.add_argument("-p1", "--p1", type=float, default=0.5, help="Probability of S -> I transition")
+    parser.add_argument("-p2", "--p2", type=float, default = 0.5, help="Probability of I -> R transition")
+    parser.add_argument("-p3", "--p3", type=float, default = 0.5, help="Probability of R -> S transition")
+    parser.add_argument("-c", "--case", choices=["absorbing", "dynamic_eq", "cyclic"], help="Choose a predefined case from : absorbing, dynamic_eq, cyclic")
+    parser.add_argument("-nth", "--show_nth", type=int, default=100, help="Show every nth frame")
+
+    args = parser.parse_args()
+    
+    
+    
+
+    if args.auto:
+        
+        # all possible ps
+        all_ps = np.arange(0, 1.05, 0.05)
+        p2 = 0.5
+        p1s = all_ps
+        p3s = all_ps
+        
+        N = 50
+        show_anim = args.show_anim
+        equilibration_sweeps = 100
+        measurement_sweeps = 1000
+        
+        #unused
+        show_nth = 100
+        case = 'Default'
+    
+    else:
+        if args.case == None:
+            case = 'Default'
+            p1, p2, p3 = args.p1, args.p2, args.p3
+        else: 
+            case = args.case
+            p1, p2, p3 = cases[args.case]
+        
+        N = args.N
+        show_anim = args.show_anim
+        nsweeps = args.nsweeps
+        nsteps = nsweeps*N*N
+        show_nth = args.show_nth
+
+        p1s = np.array([p1])
+        p3s = np.array([p3])
+
+    average_infected_arr = np.zeros((len(p1s), len(p3s)))
+    for i, p1 in enumerate(p1s[::-1]):
+        
+        for j, p3 in enumerate(p3s):
+            
+            arr = initialise(N)
+            log = False
+            start = time.time()
+            
+            if args.auto:
+                nsweeps = equilibration_sweeps
+                arr, ignore = simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log=False)
+                log = True
+                nsweeps = measurement_sweeps
+            
+            arr, av_infected = simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log)
+            print(p1, p3, av_infected)
+            end = time.time()
+            
+            if not args.auto:
+                print(f"simulation started with {case} case "
+                f"p1: {p1}, p2: {p2}, p3: {p3}\n"
+                f"Number of sweeps: {nsweeps}\n\n")
+
+            
+            average_infected_arr[i, j] = av_infected
+    
+    if args.auto:
+        plt.figure()
+        plt.imshow(average_infected_arr, cmap='hot', interpolation='nearest')
+        plt.colorbar()
+        plt.show()
+        
+        
+
+    
+    
+main()
