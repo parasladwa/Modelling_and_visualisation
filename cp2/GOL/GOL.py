@@ -3,6 +3,7 @@ import time
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from scipy.signal import convolve2d
 
 start = time.time()
 
