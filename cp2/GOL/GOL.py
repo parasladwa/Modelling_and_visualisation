@@ -8,7 +8,6 @@ from scipy.signal import convolve2d
 start = time.time()
 
 
-
 def initialise(N, method):
     
     if method == 'random':

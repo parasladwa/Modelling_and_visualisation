@@ -81,8 +81,6 @@ def main():
         'cyclic' : np.array([0.8, 0.1, 0.1], dtype=np.float64)
     }
     
-    
-    
     parser = argparse.ArgumentParser(description="SIR Model Simulation with CLI Inputs")
     parser.add_argument("-a", "--auto", action='store_true', help="full auto mode")
     parser.add_argument("-N", "--N", type=int, default=50, help="Size of the lattice")
@@ -95,7 +93,6 @@ def main():
     parser.add_argument("-nth", "--show_nth", type=int, default=100, help="Show every nth frame")
 
     args = parser.parse_args()
-    
 
     if args.auto:
         
@@ -186,4 +183,13 @@ def phase_plane_plot():
     plt.ylabel("p1")
     plt.show()
 
+
+
+
+def cut():
+    p3 = 0.5
+    p1 = np.arange(0.2, 0.55, 0.05)
+    p2 = np.arange(0, 1.05, 0.05)
+    
+    print(p2)
 
