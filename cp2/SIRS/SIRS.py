@@ -165,31 +165,43 @@ def main():
         
     
     
-main()
+#main()
 
 
 
 def phase_plane_plot():
     
     filename = "SIRS_p1_p3.txt"
-    df = pd.read_csv(filename, delim_whitespace=True)
-    heatmap_data = df.pivot(index="p1", columns="p3", values="<I>")
-    heatmap_data /= (2500)
     
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+       
+    data = []
+
+    for l in lines:
+        l = l.strip()
+        l = l.split()
+        data.append(l)
+        
+    data = np.array(data)
+
+    p1s = data[1:, 0]
+    p2s = data[1:, 1]
+    p3s = data[1:, 2]
+    Is = data[1:, 3]
+    I2s = data[1:, 4]
+    
+    
+    
+    unique_p1s = np.unique(p1s)
+    unique_p2s = np.unique(p2s)
+    
+    mapped = np.zeros((len(unique_p2s), len(unique_p1s)), dtype= float)
+
+    for i in range(len(p1s)):
+
     plt.figure()
-    sns.heatmap(heatmap_data, cbar_kws={'label': 'Intensity (<I>/N)'})
-    plt.gca().invert_yaxis() 
-    plt.xlabel("p3")
-    plt.ylabel("p1")
+    sns.heatmap(df, cmap="coolwarm", annot=True, fmt=".2f", linewidths=0.5)
     plt.show()
 
-
-
-
-def cut():
-    p3 = 0.5
-    p1 = np.arange(0.2, 0.55, 0.05)
-    p2 = np.arange(0, 1.05, 0.05)
-    
-    print(p2)
-
+phase_plane_plot()
