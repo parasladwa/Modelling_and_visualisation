@@ -6,12 +6,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
-def initialise(N):
-    
-    arr = np.random.choice([0, 1, 2], size=(N, N))
-    
-    return arr
 
+def initialise(N):
+    return np.random.choice([0, 1, 2], size=(N, N))
 
 
 def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log):
@@ -70,6 +67,110 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log):
 
 
 
+def phase_plane_plot():
+    
+    filename = "SIRS_p1_p3.txt"
+    
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+       
+    data = []
+
+    for l in lines:
+        l = l.strip()
+        l = l.split()
+        data.append(l)
+        
+    data = np.array(data)
+
+    p1s = data[1:, 0]
+    p2s = data[1:, 1]
+    p3s = data[1:, 2]
+    Is = data[1:, 3]
+    I2s = data[1:, 4]
+    
+
+    all_ps = np.arange(0, 1.05, 0.05, dtype=float)
+
+    
+    mapped = np.zeros((len(all_ps), len(all_ps)), dtype= float)
+
+
+    for dp in data[1:]:
+        
+        dp = np.array(dp, dtype= float)
+        
+        p1, p3 = dp[0], dp[2]
+
+        
+        i = np.where( all_ps == p1)
+        j = np.where( all_ps == p3)
+        
+        mapped[i[0][0], j[0][0]] = dp[3] / 2500
+    
+    
+    labels = np.round(all_ps, decimals=2)
+    
+    plt.figure()
+    sns.heatmap(mapped, xticklabels=labels, yticklabels=labels)
+    plt.gca().invert_yaxis()
+    plt.show()
+    
+    
+def variance_plane_plot():
+    
+    filename = "SIRS_p1_p3.txt"
+    
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+       
+    data = []
+
+    for l in lines:
+        l = l.strip()
+        l = l.split()
+        data.append(l)
+        
+    data = np.array(data)
+
+    p1s = data[1:, 0]
+    p2s = data[1:, 1]
+    p3s = data[1:, 2]
+    Is = data[1:, 3]
+    I2s = data[1:, 4]
+    
+
+    all_ps = np.arange(0, 1.05, 0.05, dtype=float)
+
+    
+    mapped = np.zeros((len(all_ps), len(all_ps)), dtype= float)
+
+
+    for dp in data[1:]:
+        
+        dp = np.array(dp, dtype= float)
+        
+        p1, p3 = dp[0], dp[2]
+
+        
+        i = np.where( all_ps == p1)
+        j = np.where( all_ps == p3)
+        
+        mapped[i[0][0], j[0][0]] =  (1/2500) * (dp[4] - dp[3]**2)
+    
+    
+    labels = np.round(all_ps, decimals=2)
+    
+    plt.figure()
+    sns.heatmap(mapped, xticklabels=labels, yticklabels=labels)
+    plt.gca().invert_yaxis()
+    plt.show()
+
+
+
+
+
+
 
 def main():
     # S0 I1 R2
@@ -91,8 +192,23 @@ def main():
     parser.add_argument("-p3", "--p3", type=float, default = 0.5, help="Probability of R -> S transition")
     parser.add_argument("-c", "--case", choices=["absorbing", "dynamic_eq", "cyclic"], help="Choose a predefined case from : absorbing, dynamic_eq, cyclic")
     parser.add_argument("-nth", "--show_nth", type=int, default=100, help="Show every nth frame")
+    parser.add_argument("-phase", "--p1_p3_phase", action = 'store_true', help = "Plots <I> / N phase across p1, p3 plane")
+    parser.add_argument("-var", "--phase_variance", action = 'store_true', help = "Plots ( <I2> - <I>2 ) / N phase across p1, p3 plane")
+
 
     args = parser.parse_args()
+    
+    
+    
+      
+    if args.p1_p3_phase:
+        phase_plane_plot()
+        return
+    
+    if args.phase_variance:
+        variance_plane_plot()
+        return
+        
 
     if args.auto:
         
@@ -160,48 +276,8 @@ def main():
                 outfile_plane.write(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)}\n")
                 print(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)}\n")
             
-            
-        
-        
-    
-    
-#main()
+
+main()
 
 
 
-def phase_plane_plot():
-    
-    filename = "SIRS_p1_p3.txt"
-    
-    with open(filename, 'r') as file:
-        lines = file.readlines()
-       
-    data = []
-
-    for l in lines:
-        l = l.strip()
-        l = l.split()
-        data.append(l)
-        
-    data = np.array(data)
-
-    p1s = data[1:, 0]
-    p2s = data[1:, 1]
-    p3s = data[1:, 2]
-    Is = data[1:, 3]
-    I2s = data[1:, 4]
-    
-    
-    
-    unique_p1s = np.unique(p1s)
-    unique_p2s = np.unique(p2s)
-    
-    mapped = np.zeros((len(unique_p2s), len(unique_p1s)), dtype= float)
-
-    for i in range(len(p1s)):
-
-    plt.figure()
-    sns.heatmap(df, cmap="coolwarm", annot=True, fmt=".2f", linewidths=0.5)
-    plt.show()
-
-phase_plane_plot()
