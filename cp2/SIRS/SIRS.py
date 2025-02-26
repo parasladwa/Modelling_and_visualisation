@@ -183,14 +183,15 @@ def main():
     }
     
     parser = argparse.ArgumentParser(description="SIR Model Simulation with CLI Inputs")
-    parser.add_argument("-a", "--auto", action='store_true', help="full auto mode")
+    parser.add_argument("-a", "--auto", action='store_true', help="full auto mode for data collection")
+    parser.add_argument("-ac", "--auto_cut", action = 'store_true', help = "auto mode for data collection along specified cut")
     parser.add_argument("-N", "--N", type=int, default=50, help="Size of the lattice")
     parser.add_argument("-s", "--show_anim", action= "store_true", help="Show animation of the simulation")
     parser.add_argument("-ns", "--nsweeps", type=int, default=100, help="Number of sweeps")
     parser.add_argument("-p1", "--p1", type=float, default=0.5, help="Probability of S -> I transition")
     parser.add_argument("-p2", "--p2", type=float, default = 0.5, help="Probability of I -> R transition")
     parser.add_argument("-p3", "--p3", type=float, default = 0.5, help="Probability of R -> S transition")
-    parser.add_argument("-c", "--case", choices=["absorbing", "dynamic_eq", "cyclic"], help="Choose a predefined case from : absorbing, dynamic_eq, cyclic")
+    parser.add_argument("-c", "--case", choices=["absorbing", "dynamic_eq", "cyclic"], help="Choose a predefined case")
     parser.add_argument("-nth", "--show_nth", type=int, default=100, help="Show every nth frame")
     parser.add_argument("-phase", "--p1_p3_phase", action = 'store_true', help = "Plots <I> / N phase across p1, p3 plane")
     parser.add_argument("-var", "--phase_variance", action = 'store_true', help = "Plots ( <I2> - <I>2 ) / N phase across p1, p3 plane")
@@ -208,7 +209,7 @@ def main():
     if args.phase_variance:
         variance_plane_plot()
         return
-        
+
 
     if args.auto:
         
@@ -247,11 +248,13 @@ def main():
 
         p1s = np.array([p1])
         p3s = np.array([p3])
+    
 
     for i, p1 in enumerate(p1s[::-1]):
         
         
         for j, p3 in enumerate(p3s):
+            
             
             arr = initialise(N)
             log = False
