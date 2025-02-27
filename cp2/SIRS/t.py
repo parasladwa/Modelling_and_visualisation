@@ -221,12 +221,15 @@ def main():
         equilibration_sweeps = 10
         measurement_sweeps = 10
         
-        case = 'default'
+        #unused
+        show_nth = 100
+        case = 'Default'
+        
         cut_filename = 'data_from_cut.txt'
         outfile_cut = open(cut_filename, 'w')
         outfile_cut.write("p1 p2 p3 <I> <I^2>\n")
 
-    if args.auto:
+    elif args.auto:
         
         # all possible ps
         all_ps = np.arange(0, 1.05, 0.05)
@@ -266,8 +269,8 @@ def main():
         p3s = np.array([p3], dtype = float)
     
 
-    for i, p1 in enumerate(p1s[::-1]):
-
+    for i, p1 in enumerate(p1s):
+        print('\nhereasdfioasdf;\n', p1s)
         for j, p3 in enumerate(p3s):
             
             for k, p2 in enumerate(p2s):
@@ -307,6 +310,5 @@ main()
 
 
 #show nth
-#ac
 #multiple plots
 
