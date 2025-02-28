@@ -27,6 +27,30 @@ def initialise(N):
 
 
 
+def jackknife(data):
+    
+    vals = []
+    
+    for i in range(len(data)):
+        d = np.delete(data, i)
+        
+        vals.append((1/50) * (np.mean(d**2) - (np.mean(d)**2)))
+    
+    vals = np.array(vals, dtype=float)
+    
+    err = (np.mean(vals**2) - np.mean(vals)**2) * (1/2)
+    return err
+        
+        
+        
+        
+        
+
+
+
+
+
+
 
 
 
@@ -114,9 +138,11 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
 
 
 
+
+
 def phase_plane_plot():
     
-    filename = "test.txt"
+    filename = "p1_p3_phase.txt"
     
     with open(filename, 'r') as file:
         lines = file.readlines()
@@ -176,9 +202,10 @@ def phase_plane_plot():
     
     
     
+    
 def variance_plane_plot():
     
-    filename = "test.txt"
+    filename = "p1_p3_phase.txt"
     
     with open(filename, 'r') as file:
         lines = file.readlines()
@@ -246,14 +273,19 @@ def plot_cut():
 
     I = data[:, 3]
     Isqr = data[:, 4]
+    err = data[:, 7]
     
     vals = np.zeros(len(I))
     
     for i in range(len(vals)):
         vals[i] = (1/2500)*(Isqr[i] - I[i]**2)
     
+    #plt.errorbar(C_dict.keys(), C_dict.values(), yerr = list(C_err.values()), ecolor = 'r')
+    
+    
     plt.figure()
-    plt.plot(p1s, vals)
+    #plt.plot(p1s, vals)
+    plt.errorbar(p1s, vals, yerr = err/50, ecolor = 'r')
     plt.title('variance plot for fixed p2 p3')
     plt.xlabel('p1')
     plt.ylabel('variance')
@@ -357,7 +389,7 @@ def main():
         
         cut_filename = 'data_from_cut.txt'
         outfile_cut = open(cut_filename, 'w')
-        outfile_cut.write("p1 p2 p3 <I> <I^2> <S> <R>\n")
+        outfile_cut.write("p1 p2 p3 <I> <I^2> <S> <R> <I_err>\n")
 
     elif args.auto:
         
@@ -369,16 +401,16 @@ def main():
         
         N = 50
         show_anim = args.show_anim
-        equilibration_sweeps = 10
+        equilibration_sweeps = 100
         measurement_sweeps = 10
         
         #unused
         show_nth = 100
         case = 'Default'
   
-        filename = "test.txt"
+        filename = "p1_p3_phase.txt"
         outfile_plane = open(filename, 'w')
-        outfile_plane.write("p1 p2 p3 <I> <I^2> <S> <R>\n")
+        outfile_plane.write("p1 p2 p3 <I> <I^2> <S> <R> <I_err>\n")
     
     
     
@@ -431,11 +463,11 @@ def main():
                 print(f"time = {end-start}")
                 
                 if args.auto:
-                    outfile_plane.write(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)} {np.mean(average_susceptible)} {np.mean(average_recovered)}\n")
+                    outfile_plane.write(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)} {np.mean(average_susceptible)} {np.mean(average_recovered)} {jackknife(av_infected)}\n")
                     print(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)} {np.mean(average_susceptible)} {np.mean(average_recovered)}\n")
                 
                 if args.auto_cut:
-                    outfile_cut.write(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)} {np.mean(average_susceptible)} {np.mean(average_recovered)}\n")
+                    outfile_cut.write(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)} {np.mean(average_susceptible)} {np.mean(average_recovered)} {jackknife(av_infected)}\n")
                     print(f"{p1} 0.5 {p3} {np.mean(av_infected)} {np.mean(av_infected**2)} {np.mean(average_susceptible)} {np.mean(average_recovered)}\n")
 
 
@@ -446,4 +478,4 @@ main()
 
 
 #close outfiles
-#label axes
+# /50 in error bars
