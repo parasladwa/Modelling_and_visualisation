@@ -16,14 +16,14 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log):
     nsteps = nsweeps*N*N
 
     average_infected = np.zeros(nsweeps)
-
     if show_anim:
         cmap = ListedColormap(["white", "darkred", "grey"])
         fig = plt.figure()
         im=plt.imshow(arr, animated=True)
+
         
     for step in range(nsteps):
-        
+
         i, j = np.random.randint(0, N, 2)
         
         # S0 -> I1
@@ -40,14 +40,18 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log):
                     arr[i, j] = 1
 
         # I1 -> R2
-        if arr[i, j] == 1:
+        elif arr[i, j] == 1:
             if np.random.rand() < p2:
                 arr[i, j] = 2
         
         # R2 -> S0
-        if arr[i, j] == 2:
+        else:
             if np.random.rand() < p3:
                 arr[i, j] = 0
+    
+    
+    
+    
     
         if log and step % (N*N) == 0:
             average_infected[step//(N*N)] = np.sum(arr == 1)
@@ -306,7 +310,6 @@ def main():
             
 
 main()
-
 
 
 #show nth
