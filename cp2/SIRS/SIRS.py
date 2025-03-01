@@ -29,17 +29,18 @@ def initialise(N):
 
 def jackknife(data):
     
+    true = (1/(2500) * (np.mean(data**2) - (np.mean(data)**2)))
     vals = []
     
     for i in range(len(data)):
         d = np.delete(data, i)
-        
-        vals.append((1/50) * (np.mean(d**2) - (np.mean(d)**2)))
+        vals.append((1/2500) * (np.mean(d**2) - (np.mean(d)**2)))
     
     vals = np.array(vals, dtype=float)
-    
-    err = (np.mean(vals**2) - np.mean(vals)**2) * (1/2)
-    return err
+    err = 0
+    for v in vals:
+        err += (v-true)**(2)
+    return (err)**(1/2)
         
         
         
@@ -103,9 +104,9 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
     
 
         if log and step % (N*N) == 0:
-            average_infected[step//(N*N)] = np.sum(arr == 1)
-            average_susceptible[step//(N*N)] = np.sum(arr == 0)
-            average_recovered[step//(N*N)] = np.sum(arr == 2)
+            average_infected[step//(N*N)] = np.sum(arr == 1)/2500
+            average_susceptible[step//(N*N)] = np.sum(arr == 0)/2500
+            average_recovered[step//(N*N)] = np.sum(arr == 2)/2500
         
         
         if step % show_nth == 0:
@@ -179,7 +180,7 @@ def phase_plane_plot():
         i = np.where( all_ps == p1)
         j = np.where( all_ps == p3)
         
-        mapped[i[0][0], j[0][0]] = dp[3] / 2500
+        mapped[i[0][0], j[0][0]] = dp[3]
     
     
     labels = np.round(all_ps, decimals=2)
@@ -268,8 +269,6 @@ def plot_cut():
     data = np.loadtxt(f_name, comments = 'p', dtype=float)
 
     p1s = data[:, 0]
-    p2s = data[:, 1]
-    p3s = data[:, 2]
 
     I = data[:, 3]
     Isqr = data[:, 4]
@@ -280,12 +279,10 @@ def plot_cut():
     for i in range(len(vals)):
         vals[i] = (1/2500)*(Isqr[i] - I[i]**2)
     
-    #plt.errorbar(C_dict.keys(), C_dict.values(), yerr = list(C_err.values()), ecolor = 'r')
-    
     
     plt.figure()
     #plt.plot(p1s, vals)
-    plt.errorbar(p1s, vals, yerr = err/50, ecolor = 'r')
+    plt.errorbar(p1s, vals, yerr = err, ecolor = 'r')
     plt.title('variance plot for fixed p2 p3')
     plt.xlabel('p1')
     plt.ylabel('variance')
@@ -307,9 +304,9 @@ def fractions_plots():
     x = np.array(list(range(len(Is))))
     
     plt.figure()
-    plt.scatter(x, Is, c='r', s=1.5)
-    plt.scatter(x, Ss, c='black', s=1.5)
-    plt.scatter(x, Rs, c='grey', s=1.5)
+    plt.scatter(x, Is, c='r', s=3)
+    plt.scatter(x, Ss, c='black', s=3)
+    plt.scatter(x, Rs, c='grey', s=3)
     plt.xlabel('steps but different')
     plt.ylabel('fraction')
     
@@ -381,7 +378,7 @@ def main():
         N = 50
         show_anim = args.show_anim
         equilibration_sweeps = 100
-        measurement_sweeps = 10
+        measurement_sweeps = 100
         
         #unused
         show_nth = 100
@@ -390,6 +387,8 @@ def main():
         cut_filename = 'data_from_cut.txt'
         outfile_cut = open(cut_filename, 'w')
         outfile_cut.write("p1 p2 p3 <I> <I^2> <S> <R> <I_err>\n")
+        
+        
 
     elif args.auto:
         
@@ -401,7 +400,7 @@ def main():
         
         N = 50
         show_anim = args.show_anim
-        equilibration_sweeps = 100
+        equilibration_sweeps = 10
         measurement_sweeps = 10
         
         #unused
@@ -433,6 +432,9 @@ def main():
         p1s = np.array([p1], dtype = float)
         p2s = np.array([p2], dtype = float)
         p3s = np.array([p3], dtype = float)
+        
+        
+        
     
 
     for i, p1 in enumerate(p1s):
