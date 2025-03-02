@@ -378,7 +378,7 @@ def main():
         N = 50
         show_anim = args.show_anim
         equilibration_sweeps = 100
-        measurement_sweeps = 100
+        measurement_sweeps = 10000
         
         #unused
         show_nth = 100
@@ -400,8 +400,8 @@ def main():
         
         N = 50
         show_anim = args.show_anim
-        equilibration_sweeps = 10
-        measurement_sweeps = 10
+        equilibration_sweeps = 100
+        measurement_sweeps = 1000
         
         #unused
         show_nth = 100
