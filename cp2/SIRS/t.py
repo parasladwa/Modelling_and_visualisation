@@ -16,9 +16,27 @@ from matplotlib.colors import ListedColormap
 
 
 
-def initialise(N):
-    return np.random.choice([0, 1, 2], size=(N, N))
+def initialise(N, f_immune):
 
+    arr =  np.random.choice([0, 1, 2], size=(N, N))
+    if f_immune == 0:
+        return arr
+
+    
+    n_sites = round(N*N*f_immune)
+    
+    random_sites = []
+    while len(random_sites) < n_sites:
+        
+        site =  list(np.random.randint(0, N, 2))
+        if site not in random_sites:
+            random_sites.append(site)
+    
+    
+    for s in random_sites:
+        arr[tuple(s)] = 4
+    
+    return arr
 
 
 
@@ -29,12 +47,12 @@ def initialise(N):
 
 def jackknife(data):
     
-    true = (1/(50) * (np.mean(data**2) - (np.mean(data)**2)))
+    true = (1/(2500) * (np.mean(data**2) - (np.mean(data)**2)))
     vals = []
     
     for i in range(len(data)):
         d = np.delete(data, i)
-        vals.append((1/50) * (np.mean(d**2) - (np.mean(d)**2)))
+        vals.append((1/2500) * (np.mean(d**2) - (np.mean(d)**2)))
     
     vals = np.array(vals, dtype=float)
     err = 0
@@ -70,7 +88,7 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
     average_recovered = np.zeros(nsweeps)
     
     if show_anim:
-        cmap = ListedColormap(["white", "darkred", "grey"])
+        cmap = ListedColormap(["white", "darkred", "grey", "yellow"])
         fig = plt.figure()
         im=plt.imshow(arr, animated=True)
 
@@ -104,9 +122,9 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
     
 
         if log and step % (N*N) == 0:
-            average_infected[step//(N*N)] = np.sum(arr == 1)/50
-            average_susceptible[step//(N*N)] = np.sum(arr == 0)/50
-            average_recovered[step//(N*N)] = np.sum(arr == 2)/50
+            average_infected[step//(N*N)] = np.sum(arr == 1)/2500
+            average_susceptible[step//(N*N)] = np.sum(arr == 0)/2500
+            average_recovered[step//(N*N)] = np.sum(arr == 2)/2500
         
         
         if step % show_nth == 0:
@@ -277,7 +295,7 @@ def plot_cut():
     vals = np.zeros(len(I))
     
     for i in range(len(vals)):
-        vals[i] = (1/50)*(Isqr[i] - I[i]**2)
+        vals[i] = (1/2500)*(Isqr[i] - I[i]**2)
     
     
     plt.figure()
@@ -304,9 +322,9 @@ def fractions_plots():
     x = np.array(list(range(len(Is))))
     
     plt.figure()
-    plt.scatter(x, Is, c='r', s=1.5)
-    plt.scatter(x, Ss, c='black', s=1.5)
-    plt.scatter(x, Rs, c='grey', s=1.5)
+    plt.scatter(x, Is, c='r', s=3)
+    plt.scatter(x, Ss, c='black', s=3)
+    plt.scatter(x, Rs, c='grey', s=3)
     plt.xlabel('steps but different')
     plt.ylabel('fraction')
     
@@ -319,6 +337,17 @@ def fractions_plots():
     
     
     
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -340,7 +369,7 @@ def main():
     parser.add_argument("-ac", "--auto_cut", action = 'store_true', help = "auto mode for data collection along specified cut")
     parser.add_argument("-N", "--N", type=int, default=50, help="Size of the lattice")
     parser.add_argument("-s", "--show_anim", action= "store_true", help="Show animation of the simulation")
-    parser.add_argument("-ns", "--nsweeps", type=int, default=5, help="Number of sweeps")
+    parser.add_argument("-ns", "--nsweeps", type=int, default=500, help="Number of sweeps")
     parser.add_argument("-p1", "--p1", type=float, default=0.5, help="Probability of S -> I transition")
     parser.add_argument("-p2", "--p2", type=float, default = 0.5, help="Probability of I -> R transition")
     parser.add_argument("-p3", "--p3", type=float, default = 0.5, help="Probability of R -> S transition")
@@ -378,7 +407,7 @@ def main():
         N = 50
         show_anim = args.show_anim
         equilibration_sweeps = 100
-        measurement_sweeps = 100
+        measurement_sweeps = 10000
         
         #unused
         show_nth = 100
@@ -387,6 +416,8 @@ def main():
         cut_filename = 'data_from_cut.txt'
         outfile_cut = open(cut_filename, 'w')
         outfile_cut.write("p1 p2 p3 <I> <I^2> <S> <R> <I_err>\n")
+        
+        
 
     elif args.auto:
         
@@ -430,6 +461,9 @@ def main():
         p1s = np.array([p1], dtype = float)
         p2s = np.array([p2], dtype = float)
         p3s = np.array([p3], dtype = float)
+        
+        
+        
     
 
     for i, p1 in enumerate(p1s):
@@ -439,7 +473,7 @@ def main():
             for k, p2 in enumerate(p2s):
             
             
-                arr = initialise(N)
+                arr = initialise(N, f_immune=0)
                 log = False
                 start = time.time()
                 
@@ -476,3 +510,4 @@ main()
 
 #close outfiles
 # /50 in error bars
+
