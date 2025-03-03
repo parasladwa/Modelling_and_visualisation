@@ -88,7 +88,11 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
     average_recovered = np.zeros(nsweeps)
     
     if show_anim:
-        cmap = ListedColormap(["white", "darkred", "grey", "yellow"])
+        
+        if immunity_fraction == 0: 
+            cmap = ListedColormap(["white", "darkred", "grey"])
+        else:
+            cmap = ListedColormap(["white", "darkred", "grey", "yellow"])
         fig = plt.figure()
         im=plt.imshow(arr, animated=True)
 
@@ -96,6 +100,8 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
     for step in range(nsteps):
 
         i, j = np.random.randint(0, N, 2)
+        
+            
         
         # S0 -> I1
         if arr[i, j] == 0:
@@ -114,6 +120,13 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
         elif arr[i, j] == 1:
             if np.random.rand() < p2:
                 arr[i, j] = 2
+        
+        
+        
+        #immunity case
+        if arr[i, j] == 4:
+            pass
+        
         
         # R2 -> S0
         else:
@@ -135,7 +148,7 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
             if show_anim:
                 plt.cla()
                 im=plt.imshow(arr, animated=True, cmap=cmap)
-                plt.title(f"SIRS Model, {case} case\nsweep: {step/(N*N)}, p1: {p1}, p2: {p2}, p3: {p3}")
+                plt.title(f"SIRS Model, {case} case\nsweep: {step/(N*N)}, p1: {p1}, p2: {p2}, p3: {p3}: IF: {immunity_fraction}")
                 plt.draw()
                 plt.pause(0.01)
             
@@ -360,7 +373,7 @@ def main():
     
     cases = {
         'absorbing' : np.array([0.1, 0.9, 0.9], dtype=np.float64),
-        'dynamic_eq' : np.array([0.7, 0.5, 0.5], dtype=np.float64),
+        'dynamic_eq' : np.array([0.8, 0.5, 0.4], dtype=np.float64),
         'cyclic' : np.array([0.8, 0.1, 0.01], dtype=np.float64)
     }
     
@@ -379,10 +392,14 @@ def main():
     parser.add_argument("-var", "--phase_variance", action = 'store_true', help = "Plots ( <I2> - <I>2 ) / N phase across p1, p3 plane")
     parser.add_argument("-f", "--fractions", action = 'store_true', help = "Plots the fractions of each state across the simulation")
     parser.add_argument("-pc", "--plot_cut", action = 'store_true', help = "Plots the variance of cut simulation")
+    parser.add_argument("-if", "--immunity_fraction", type = float, default = 0, help = "fraction of immune/vaccinated agents")
 
 
 
     args = parser.parse_args()
+    
+    global immunity_fraction
+    immunity_fraction = args.immunity_fraction
 
     if args.plot_cut:
         plot_cut()
@@ -473,7 +490,7 @@ def main():
             for k, p2 in enumerate(p2s):
             
             
-                arr = initialise(N, f_immune=0)
+                arr = initialise(N, args.immunity_fraction)
                 log = False
                 start = time.time()
                 
