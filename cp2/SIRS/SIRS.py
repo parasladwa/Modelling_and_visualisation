@@ -340,7 +340,7 @@ def main():
     parser.add_argument("-ac", "--auto_cut", action = 'store_true', help = "auto mode for data collection along specified cut")
     parser.add_argument("-N", "--N", type=int, default=50, help="Size of the lattice")
     parser.add_argument("-s", "--show_anim", action= "store_true", help="Show animation of the simulation")
-    parser.add_argument("-ns", "--nsweeps", type=int, default=5, help="Number of sweeps")
+    parser.add_argument("-ns", "--nsweeps", type=int, default=500, help="Number of sweeps")
     parser.add_argument("-p1", "--p1", type=float, default=0.5, help="Probability of S -> I transition")
     parser.add_argument("-p2", "--p2", type=float, default = 0.5, help="Probability of I -> R transition")
     parser.add_argument("-p3", "--p3", type=float, default = 0.5, help="Probability of R -> S transition")
