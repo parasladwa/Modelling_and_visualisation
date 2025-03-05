@@ -358,6 +358,66 @@ def fractions_plots():
 
 
 
+def immunity_calculations():
+    
+    fractions = np.concatenate((np.arange(0, 0.25, .005), np.arange(0.25, 1, 0.1)))
+    print(fractions)
+    N = 50
+    p1 = 0.8
+    p2 = 0.5
+    p3 = 0.4
+    
+    
+    show_anim = False
+    
+        
+    show_nth = 100
+    case = 'Default'
+    
+    equilibration_sweeps = 100
+    measurement_sweeps = 100
+
+    filename = 'immunity_data.txt'
+    outfile_im = open(filename, 'w')
+    outfile_im.write('I_fi <I>\n')
+
+
+    for f in fractions:
+        print(f)
+        arr = initialise(N, f)
+        
+        #equilibrate
+        nsweeps = equilibration_sweeps
+        arr, ignore, ignore, ignore = simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log = False, fractions = f)
+        
+        
+        nsweeps = measurement_sweeps
+        arr, av_infected, average_susceptible, average_recovered = simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log = True, fractions = f)
+        
+        outfile_im.write(F"{f} {np.mean(av_infected)}\n")
+        
+
+        
+        
+
+    
+def immunity_plots():
+    
+    data = np.loadtxt('immunity_data.txt', comments = 'I', dtype=float)
+    fs = data[:, 0]
+    Is = data[:, 1]
+    
+    plt.figure()
+    plt.scatter(fs, Is, s = 5)
+    plt.xlabel("fraction of immunity")
+    plt.ylabel("average infected sites")
+    plt.title("average infected sights against fraction of vaccinations")
+    plt.show()
+
+
+
+
+
 
 
 
@@ -393,13 +453,23 @@ def main():
     parser.add_argument("-f", "--fractions", action = 'store_true', help = "Plots the fractions of each state across the simulation")
     parser.add_argument("-pc", "--plot_cut", action = 'store_true', help = "Plots the variance of cut simulation")
     parser.add_argument("-if", "--immunity_fraction", type = float, default = 0, help = "fraction of immune/vaccinated agents")
-
+    parser.add_argument("-ai", "--auto_immunity", action = 'store_true', help = "automates imunity against fractions plot")
+    parser.add_argument("-pi", "--plot_immunity", action = 'store_true', help = "Plots data from immunity_data.txt")
 
 
     args = parser.parse_args()
     
     global immunity_fraction
     immunity_fraction = args.immunity_fraction
+    
+    
+    if args.plot_immunity:
+        immunity_plots()
+        return
+    
+    if args.auto_immunity:
+        immunity_calculations()
+        return
 
     if args.plot_cut:
         plot_cut()
@@ -525,6 +595,4 @@ def main():
 main()
 
 
-#close outfiles
-# /50 in error bars
-
+#if elif in simulate for 
