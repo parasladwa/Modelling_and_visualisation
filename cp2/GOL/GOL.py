@@ -66,7 +66,7 @@ def main():
     
     
     outfile = open(filename, 'w')
-    outfile.write("run_no steps_to_equilibrate")
+    outfile.write("run_no steps_to_equilibrate\n")
     
     kernel = np.array([[1, 1, 1],
                        [1, 0, 1],

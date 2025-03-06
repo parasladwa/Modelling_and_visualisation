@@ -123,9 +123,9 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
         
         
         
-        #immunity case
-        if arr[i, j] == 4:
-            pass
+        # #immunity case
+        elif arr[i, j] == 4:
+             pass
         
         
         # R2 -> S0
@@ -218,8 +218,10 @@ def phase_plane_plot():
     
     plt.figure()
     plt.title('<I>/N for p1 p3 plane')
-    sns.heatmap(mapped, xticklabels=labels, yticklabels=labels)
+    sns.heatmap(mapped.T, xticklabels=labels, yticklabels=labels)
     plt.gca().invert_yaxis()
+    plt.xlabel('p1')
+    plt.ylabel('p3')
     plt.show()
     
     
@@ -360,12 +362,12 @@ def fractions_plots():
 
 def immunity_calculations():
     
-    fractions = np.concatenate((np.arange(0, 0.25, .005), np.arange(0.25, 1, 0.1)))
+    fractions = np.concatenate((np.arange(0, 0.4, .005), np.arange(0.4, 1, 0.1)))
     print(fractions)
     N = 50
-    p1 = 0.8
+    p1 = 0.5
     p2 = 0.5
-    p3 = 0.4
+    p3 = 0.5
     
     
     show_anim = False
@@ -433,7 +435,7 @@ def main():
     
     cases = {
         'absorbing' : np.array([0.1, 0.9, 0.9], dtype=np.float64),
-        'dynamic_eq' : np.array([0.8, 0.5, 0.4], dtype=np.float64),
+        'dynamic_eq' : np.array([0.5, 0.5, 0.5], dtype=np.float64),
         'cyclic' : np.array([0.8, 0.1, 0.01], dtype=np.float64)
     }
     

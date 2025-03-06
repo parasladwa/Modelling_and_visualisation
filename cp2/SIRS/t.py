@@ -218,8 +218,10 @@ def phase_plane_plot():
     
     plt.figure()
     plt.title('<I>/N for p1 p3 plane')
-    sns.heatmap(mapped, xticklabels=labels, yticklabels=labels)
+    sns.heatmap(mapped.T, xticklabels=labels, yticklabels=labels)
     plt.gca().invert_yaxis()
+    plt.xlabel('p1')
+    plt.ylabel('p3')
     plt.show()
     
     
@@ -274,7 +276,7 @@ def variance_plane_plot():
         i = np.where( all_ps == p1)
         j = np.where( all_ps == p3)
         
-        mapped[i[0][0], j[0][0]] = (1/2500) * (dp[4] - dp[3]**2)
+        mapped[i[0][0], j[0][0]] = (1/1) * (dp[4] - dp[3]**2)#################/2500############
     
     
     labels = np.round(all_ps, decimals=2)
@@ -303,12 +305,12 @@ def plot_cut():
 
     I = data[:, 3]
     Isqr = data[:, 4]
-    err = data[:, 7]
+    err = data[:, 7]*2500 ##############################################################
     
     vals = np.zeros(len(I))
     
     for i in range(len(vals)):
-        vals[i] = (1/2500)*(Isqr[i] - I[i]**2)
+        vals[i] = (1/1)*(Isqr[i] - I[i]**2) #############################################
     
     
     plt.figure()
