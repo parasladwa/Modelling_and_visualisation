@@ -41,7 +41,7 @@ def main():
     show_anim = False
     show_plot = True
     steps_to_equil = np.array([], dtype=int)
-    filename = 'GOL_data.txt'
+    filename = 'other.txt'
     nsteps_other = 200
     coms = np.array([], dtype=float)
     vels = np.array([], dtype=float)

@@ -92,7 +92,7 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
         if immunity_fraction == 0: 
             cmap = ListedColormap(["white", "darkred", "grey"])
         else:
-            cmap = ListedColormap(["white", "darkred", "grey", "yellow"])
+            cmap = ListedColormap(["white", "darkred", "grey", "b"])
         fig = plt.figure()
         im=plt.imshow(arr, animated=True)
 

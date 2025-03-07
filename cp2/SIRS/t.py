@@ -276,7 +276,7 @@ def variance_plane_plot():
         i = np.where( all_ps == p1)
         j = np.where( all_ps == p3)
         
-        mapped[i[0][0], j[0][0]] = (1/1) * (dp[4] - dp[3]**2)#################/2500############
+        mapped[i[0][0], j[0][0]] = (1/1) * (dp[4] - dp[3]**2) * 2500
     
     
     labels = np.round(all_ps, decimals=2)
@@ -303,14 +303,14 @@ def plot_cut():
 
     p1s = data[:, 0]
 
-    I = data[:, 3]
-    Isqr = data[:, 4]
-    err = data[:, 7]*2500 ##############################################################
+    I = data[:, 3]  *2500
+    Isqr = data[:, 4] *2500*2500
+    err = data[:, 7]*2500*2500 ##############################################################
     
     vals = np.zeros(len(I))
     
     for i in range(len(vals)):
-        vals[i] = (1/1)*(Isqr[i] - I[i]**2) #############################################
+        vals[i] = (1/2500)*(Isqr[i] - I[i]**2) #############################################
     
     
     plt.figure()
@@ -411,6 +411,7 @@ def immunity_plots():
     
     plt.figure()
     plt.scatter(fs, Is, s = 5)
+    plt.plot(fs, Is)
     plt.xlabel("fraction of immunity")
     plt.ylabel("average infected sites")
     plt.title("average infected sights against fraction of vaccinations")
