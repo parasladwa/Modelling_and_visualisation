@@ -1,1 +1,2 @@
-run_no steps_to_equilibrate0 617
+run_no steps_to_equilibrate
+0 201

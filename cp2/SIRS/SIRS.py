@@ -282,7 +282,7 @@ def variance_plane_plot():
     labels = np.round(all_ps, decimals=2)
     
     plt.figure()
-    sns.heatmap(mapped, xticklabels=labels, yticklabels=labels)
+    sns.heatmap(mapped.T, xticklabels=labels, yticklabels=labels)
     plt.title('variance in I for p1 p3 plane')
     plt.gca().invert_yaxis()
     plt.show()
