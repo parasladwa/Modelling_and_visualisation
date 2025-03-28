@@ -64,7 +64,7 @@ def main():
     
         if args.show_anim and args.show_nth:
             plt.cla()
-            plt.imshow(phi[0], animated=True)
+            plt.imshow(phi[args.N//2], animated=True)
             plt.draw()
             plt.pause(0.01)
 
@@ -88,15 +88,14 @@ def main():
     grad_y_kernel = np.zeros((3, 3, 3))
     grad_z_kernel = np.zeros((3, 3, 3))
     
-
-    grad_z_kernel[1, 1, 2] = 1
-    grad_z_kernel[1, 1, 0] = -1
-
-    grad_y_kernel[1, 2, 1] = 1
-    grad_y_kernel[1, 0, 1] = -1
-
     grad_x_kernel[2, 1, 1] = 1
     grad_x_kernel[0, 1, 1] = -1
+    
+    grad_y_kernel[1, 2, 1] = 1
+    grad_y_kernel[1, 0, 1] = -1
+    
+    grad_z_kernel[1, 1, 2] = 1
+    grad_z_kernel[1, 1, 0] = -1
 
 
     grad_x =  ( convolve(phi, grad_x_kernel, mode='constant') ) / (2 * dx ) 
@@ -108,7 +107,7 @@ def main():
     coords = np.arange(0, args.N)
     
     magnitudes = ( grad_x[:, :, args.N//2]**2 + grad_y[:, :, args.N//2]**2 ) ** (1/2)
-    
+    magnitudes *= 1.5
 
     
     plt.figure()

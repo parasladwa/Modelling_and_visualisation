@@ -20,6 +20,10 @@ def initial_condition(N, case):
     
     elif case == 'halfs':
         arr = np.random.choice([-0.5, 0.5], size=(N, N))
+        
+    elif case == 'half':
+        arr = np.random.choice([0, 0.5], size = (N, N))
+
     
     
     #randomly selected array of 0.5 or -0.5
@@ -149,3 +153,8 @@ main()
 
     
     
+
+
+## questions
+
+# +- 0.5 or 0, 0.5
