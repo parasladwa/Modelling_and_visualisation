@@ -119,7 +119,28 @@ def main():
     
     
     
+    #outfile
+    g_x_s = grad_x[:, :, args.N//2]
+    g_y_s = grad_y[:, :, args.N//2]
+    g_z_s = grad_z[:, :, args.N//2]
+
     
+    name = "poisson.txt"
+    outfile = open(name, 'w')
+    outfile.write(f"i j potential Ex Ey Ez\n")
+    
+    
+    for i in range(len(phi[args.N//2])):
+        for j in range(len(phi[args.N//2, i])):
+            for k in range(len(phi[args.N//2, i])):
+                
+                outfile.write(f"{i} {j} {k} {phi[i, j, k]} {grad_x[i, j, k]} {grad_y[i, j, k]} {grad_z[i, j, k]}\n")
+            
+            
+    outfile.close()
+    
+    
+    '''
     #outfile
     phi_slice = phi[args.N//2]
     g_x_s = grad_x[:, :, args.N//2]
@@ -134,10 +155,61 @@ def main():
     
     for i in range(len(phi[args.N//2])):
         for j in range(len(phi[args.N//2, i])):
-            outfile.write(f"{i} {j} {phi_slice[i, j]} {g_x_s[i, j]}, {g_y_s[i, j]} {g_z_s[i, j]}\n")
+            outfile.write(f"{i} {j} {phi_slice[i, j]} {g_x_s[i, j]} {g_y_s[i, j]} {g_z_s[i, j]}\n")
             
             
     outfile.close()
+    '''
+    
+    
+    
+    
+    #function potential and electric as a function of distance
+    file = np.loadtxt('poisson.txt', comments = 'i', dtype = float)
+    
+    iss = file[:, 0] - args.N//2
+    js = file[:, 1] - args.N//2
+    ks = file[:, 2] - args.N//2
+    potentials = file[:, 3]
+    Exs = file[:, 4]
+    Eys = file[:, 5]
+    Ezs = file[:, 6]
+    
+    distance_potential = []
+    for i in range(len(file)):
+        dist = np.sqrt(  iss[i]**2 + js[i]**2 + ks[i]**2  )
+        potential = potentials[i]
+        
+        
+        distance_potential.append([dist, potential])
+    
+    distance_potential = np.array(distance_potential)
+    
+    plt.figure()
+    plt.title("vector potential as a function of distance")
+    plt.scatter(distance_potential[:, 0], distance_potential[:, 1])
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.show()
+    
+    
+    
+    distance_field = []
+    for i in range(len(file)):
+        dist = np.sqrt(  iss[i]**2 + js[i]**2 + ks[i]**2 )
+        field = np.sqrt(Exs[i]**2 + Eys[i]**2 + Ezs[i]**2)
+        
+        distance_field.append([dist, field])
+    
+    distance_field = np.array(distance_field)
+    
+    plt.figure()
+    plt.title("efield strength as a function of distance")
+    plt.scatter(distance_field[:, 0], distance_field[:, 1])
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.show()
+
 
 
 main()

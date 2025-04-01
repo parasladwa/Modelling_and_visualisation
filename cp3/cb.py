@@ -1,6 +1,7 @@
 import time
 import argparse
 import numpy as np
+import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.ndimage import convolve
 
@@ -20,7 +21,7 @@ def main():
     parser.add_argument("-s", "--show_anim", action="store_true", help="show animation")
     parser.add_argument("-t", "--termination_condition", type = float, default = 0.001, help = 'termination condition')
     parser.add_argument("-m", "--method", type = str, default = "gs", help = "choose method from gs or j, (gauss siedel or jacobi)")
-    parser.add_argument("-w", "--omega", type = float, default = 1.0, help = "SOR factor, w > 1")
+    parser.add_argument("-w", "--omega", type = float, default = 1.8, help = "SOR factor, w > 1")
     parser.add_argument("-a", "--auto_gs", action="store_true", help="sim across w vals")
     parser.add_argument("-l", "--log", action="store_true", help="log datafiles")
     
@@ -100,7 +101,8 @@ def main():
         if args.auto_gs:
             outfile_gs = open('gs_data.txt.', 'w')
             outfile_gs.write(f"<omega> <steps>\n")
-            omegas = np.linspace(1, 2, )
+            omegas = np.linspace(1, 2, 11)
+            print(f"omegas {omegas}")
                         
         
         print('GAUS SEIDEL METHOD')
@@ -226,8 +228,8 @@ def main():
             
     #outfiles
     if args.method == 'j' and args.log:
-        outfile_j = open('magnet_jacobi.txt.', 'w')
-        outfile_j.write(f"<i> <j> <vector_potential> <magnetic_field>\n")
+        outfile_j = open('magnet_jacobi.txt', 'w')
+        outfile_j.write(f"<i> <j> <k> <vector_potential> <magnetic_field>\n")
         
         A_slice = A[args.N//2]
         
@@ -237,11 +239,12 @@ def main():
         
         for i in range(len(A[args.N//2])):
             for j in range(len(A[args.N//2, i])):
-                outfile_j.write(f"{i} {j} {A_slice[i, j]} {Bx_s[i, j]} {By_s[i, j]} {Bz_s[i, j]}\n")
+                for k in range(len(A[args.N//2, i])):
+                    #outfile_j.write(f"{i} {j} {k} {A_slice[i, j]} {Bx_s[i, j]} {By_s[i, j]} {Bz_s[i, j]}\n")
+                    outfile_j.write(f"{i} {j} {k} {A[i, j, k]} {Bx[i, j, k]} {By[i, j, k]} {Bz[i, j, k]}\n")
 
-    
     if args.method == 'gs' and args.log:
-        outfile_gs = open('magnet_gs', 'w')
+        outfile_gs = open('magnet_gs.txt', 'w')
         outfile_gs.write(f"<i> <j> <vector_potential> <magnetic_field>\n")
         
         A_slice = A[args.N//2]
@@ -252,15 +255,147 @@ def main():
         
         for i in range(len(A[args.N//2])):
             for j in range(len(A[args.N//2, i])):
-                outfile_j.write(f"{i} {j} {A_slice[i, j]} {Bx_s[i, j]} {By_s[i, j]} {Bz_s[i, j]}\n")
+                for k in range(len(A[args.N//2, i])):
+                    #outfile_gs.write(f"{i} {j} {A_slice[i, j]} {Bx_s[i, j]} {By_s[i, j]} {Bz_s[i, j]}\n")
+                    outfile_gs.write(f"{i} {j} {k} {A[i, j, k]} {Bx[i, j, k]} {By[i, j, k]} {Bz[i, j, k]}\n")
+                
+    
+    # # #plots as a function of distance original
+    
+    # if args.method == 'j':
         
+    #     data = np.loadtxt('magnet_jacobi.txt', comments = '<' , dtype = float)
+        
+    #     iss = data[:, 0] - args.N//2
+    #     js = data[:, 1] - args.N//2
+    #     ks = data[:, 2] - args.N//2
+    #     potentials = data[:, 3]
+    #     Bxs = data[:, 4]
+    #     Bys = data[:, 5]
+    #     Bzs = data[:, 6]
+        
+    #     dist_potential = []
+    #     for i in range(len(data)):
+    #         #if ks[i] == 0:
+                
+    #         dist = np.sqrt( iss[i]**2 + js[i]**2 )
+    #         pot = potentials[i]
+    #         dist_potential.append([dist, pot])
+                
+    #     dist_potential = np.array(dist_potential)
+                    
+    #     # plt.figure()
+    #     # plt.scatter(ks, potentials, alpha=0.5)
+    #     # plt.xlabel("k index")
+    #     # plt.ylabel("Potential")
+    #     # plt.title("Potential Values Across k-Slices")
+    #     # plt.show()
+        
+    #     plt.figure()
+    #     plt.scatter(dist_potential[:, 0], dist_potential[:, 1], c = ks, cmap = 'inferno')
+    #     plt.xscale('log')
+    #     plt.yscale('log')
+    #     plt.title(f'potential strength as a functoin of distance')
+    #     plt.show()
+        
+        
+        
+        
+        
+    #     dist_field = []
+    #     for i in range(len(data)):
+    #         dist = np.sqrt( iss[i]**2 + js[i]**2 )
+    #         field = np.sqrt( Bxs[i]**2 + Bys[i]**2 + Bzs[i]**2)
+    #         dist_field.append([dist, field])
+        
+    #     dist_field = np.array(dist_field)
+        
+    #     plt.figure()
+    #     plt.scatter(dist_field[:, 0], dist_field[:, 1],  c = ks, cmap = 'inferno')
+    #     plt.title('Bfield strength as a functoin of distance')
+    #     plt.xscale('log')
+    #     plt.yscale('log')
+    #     plt.show()
+        
+        
+            
+    #     #end 
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+
+    if args.method == 'j':
+        fnameplot = 'magnet_jacobi.txt'
+    else:
+        fnameplot = 'magnet_gs.txt'
+    
+    data = np.loadtxt(fnameplot, comments = '<' , dtype = float)
+    
+    iss = data[:, 0] - args.N//2
+    js = data[:, 1] - args.N//2
+    ks = data[:, 2] - args.N//2
+    potentials = data[:, 3]
+    Bxs = data[:, 4]
+    Bys = data[:, 5]
+    Bzs = data[:, 6]
+    
+    dist_potential = []
+    for i in range(len(data)):
+        #if ks[i] == 0:
+            
+        dist = np.sqrt( iss[i]**2 + js[i]**2 )
+        pot = potentials[i]
+        dist_potential.append([dist, pot])
+            
+    dist_potential = np.array(dist_potential)
+                
+    # plt.figure()
+    # plt.scatter(ks, potentials, alpha=0.5)
+    # plt.xlabel("k index")
+    # plt.ylabel("Potential")
+    # plt.title("Potential Values Across k-Slices")
+    # plt.show()
+    
+    plt.figure()
+    plt.scatter(dist_potential[:, 0], dist_potential[:, 1], c = ks, cmap = 'inferno')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.title(f'potential strength as a functoin of distance')
+    plt.show()
+    
+    
+    
+    
+    
+    dist_field = []
+    for i in range(len(data)):
+        dist = np.sqrt( iss[i]**2 + js[i]**2 )
+        field = np.sqrt( Bxs[i]**2 + Bys[i]**2 + Bzs[i]**2)
+        dist_field.append([dist, field])
+    
+    dist_field = np.array(dist_field)
+    
+    plt.figure()
+    plt.scatter(dist_field[:, 0], dist_field[:, 1],  c = ks, cmap = 'inferno')
+    plt.title('Bfield strength as a functoin of distance')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.show()
+
 
 main()
 
 
 
 
-
+#all data
+# distance plots
+# run big sim
 
