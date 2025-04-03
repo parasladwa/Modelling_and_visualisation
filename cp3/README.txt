@@ -11,10 +11,17 @@ BVP Magnet - solved in 'cb.py'
     see plots of newly run simulation (nb this overwrites previous runs)
     further details provided in argparser
 
-    for purely the gauss-seidel method - see 'magnet.py'
+    for purely the gauss-seidel method - see 'magnet.py', note this 
+    doesnt provide vector plots for this method
 
 
-    
+
+
+Extra : the file 'testmag.py' solves the magnet problem with the SOR, gauss siedel, and
+    jacobi algorithms, the file is messy but it provides all plots including vector plots
+    and functions of distance plots which the aforementioned files lack. nb ensure to use -l
+    argument here too to plot the data of the current run. (essentially combines cb.py and magnet.py)
+
 
 for all plots that take too long to run (particularly with GS) .pngs are labelled
 and stored in the file.
