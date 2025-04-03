@@ -24,8 +24,28 @@ def main():
     parser.add_argument("-w", "--omega", type = float, default = 1.8, help = "SOR factor, w > 1")
     parser.add_argument("-a", "--auto_gs", action="store_true", help="sim across w vals")
     parser.add_argument("-l", "--log", action="store_true", help="log datafiles")
+    parser.add_argument("-pi", "--plot_iters", action = "store_true", help = "plots omegas vs N_iterations for SOR")
     
     args = parser.parse_args()
+    
+    
+    
+    if args.plot_iters == True:
+        dat = np.loadtxt('gs_data.txt', comments= '<')
+        omegass = dat[:, 0]
+        iters = dat[:, 1]
+
+        plt.figure()
+        plt.scatter(omegass, iters)
+        plt.title('omega against iterations until convergence')
+        plt.xlabel('omega values')
+        plt.ylabel('iterations until convergence')
+        plt.show()
+        
+        #sys.exit   
+        return
+    
+    
     
     j = np.zeros((args.N, args.N, args.N))
     A = np.copy(j)
@@ -367,7 +387,9 @@ def main():
     plt.scatter(dist_potential[:, 0], dist_potential[:, 1], c = ks, cmap = 'inferno')
     plt.xscale('log')
     plt.yscale('log')
-    plt.title(f'potential strength as a functoin of distance')
+    plt.title(f'potential strength as a function of distance')
+    plt.xlabel('log(distance)')
+    plt.ylabel('log(potential)')
     plt.show()
     
     
@@ -387,6 +409,8 @@ def main():
     plt.title('Bfield strength as a functoin of distance')
     plt.xscale('log')
     plt.yscale('log')
+    plt.xlabel('log(distance)')
+    plt.ylabel('log(Bfield_magnitude)')
     plt.show()
 
 

@@ -187,6 +187,8 @@ def main():
     
     plt.figure()
     plt.title("vector potential as a function of distance")
+    plt.xlabel('Log(distance)')
+    plt.ylabel('Log(potential)')
     plt.scatter(distance_potential[:, 0], distance_potential[:, 1])
     plt.xscale('log')
     plt.yscale('log')
@@ -206,6 +208,8 @@ def main():
     plt.figure()
     plt.title("efield strength as a function of distance")
     plt.scatter(distance_field[:, 0], distance_field[:, 1])
+    plt.xlabel('Log(distance)')
+    plt.ylabel('Log(Efield_magnitude)')
     plt.xscale('log')
     plt.yscale('log')
     plt.show()
