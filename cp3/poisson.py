@@ -205,6 +205,12 @@ def main():
     
     distance_field = np.array(distance_field)
     
+    # test = np.polyfit(np.log(distance_field[:, 0][:100]), np.log(distance_field[:, 1][:100]), 1)
+    # print(test)
+    
+    # gradient = (distance_field[1, 100] - distance_field[100, 0])/(distance_field[0, 0] - distance_field[0, 100])
+    # print(gradient)
+    
     plt.figure()
     plt.title("efield strength as a function of distance")
     plt.scatter(distance_field[:, 0], distance_field[:, 1])

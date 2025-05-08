@@ -8,6 +8,14 @@ from scipy.signal import convolve2d
 
 
 
+
+
+
+
+
+
+
+
 def initial_condition(N, case):
     
     arr = np.zeros((N, N))
@@ -22,7 +30,7 @@ def initial_condition(N, case):
         arr = np.random.choice([-0.5, 0.5], size=(N, N))
         
     elif case == 'half':
-        arr = np.random.choice([0, 0.5], size = (N, N))
+        arr = np.random.choice([0.5, 0], size = (N, N))
 
     
     
