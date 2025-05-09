@@ -53,7 +53,6 @@ def simulate(N= 50, phi_0=0.1, animation=True, show_nth=10, max_steps=5000):
             plt.text(0, -.1*N, f"Step: {step}")
             plt.draw()
             plt.pause(0.01)
-            print(np.mean(phi**2) - np.mean(phi)**2)
             
         #variance computation
         variance = np.mean(phi**2) - np.mean(phi)**2
@@ -185,7 +184,7 @@ def simulate_part_d(N= 50, phi_0=0.1, animation=True, show_nth=10, max_steps=100
 
 
 def main():
-    
+    #main function to run the simulations, each part can be run separately
     
     parser = argparse.ArgumentParser(description="Phase Field Simulation")
     parser.add_argument("--part", type=str, choices=["a", "b", "c", "d"], required=True, help="Part of the exam to run")
@@ -210,8 +209,9 @@ def main():
     elif args.part == "d":
         simulate_part_d(N = args.N, animation=True, show_nth=args.show_nth, max_steps=args.max_steps, v_0=args.v_0)
         
-       
-       
+    else:
+        print("Invalid part. Please choose from a, b, c, or d.")
+        return
        
        
 main()
