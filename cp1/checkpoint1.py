@@ -5,7 +5,7 @@ import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from astropy.stats import jackknife_stats
+#from astropy.stats import jackknife_stats
 
 
 def set_up(N):
@@ -77,7 +77,7 @@ def full_energy(arr):
 def main(auto = False, dynamics_method = "glauber", N = 15, T = 2, arr = None,\
          nsweep = 100, show_anim = True, log_freq = -1):
     
-    show_nth = 10
+    show_nth = 500
 
     if not auto:
         

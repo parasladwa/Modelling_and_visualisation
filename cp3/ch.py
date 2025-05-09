@@ -119,6 +119,7 @@ def main():
         
         #sim steps
         conv_phi= convolve2d(phi, kernel, mode='same', boundary='wrap')
+        
         mu = -a*phi + a*phi**3 - kappa*(conv_phi - 4*phi)/(dx**2)
         
         conv_mu = convolve2d(mu, kernel, mode='same', boundary='wrap')

@@ -45,6 +45,8 @@ if step%shownth == 0:
     
 #laplacian convolve convolve2d 
 # in the form dmatrix / dt = something laplacian A
+
+
 from scipy.signal import convolve2d
 
 kernel = [[0, 1, 0],
@@ -56,10 +58,6 @@ a += (D*(conv_a-4*a)/(dx**2) + q*a*(abc) - p*a*c)*dt
 
 conv_phi= convolve2d(phi, kernel, mode='same', boundary='wrap')
 mu = -a*phi + a*phi**3 - kappa*(conv_phi - 4*phi)/(dx**2)
-
-
-
-
 
 
 

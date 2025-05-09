@@ -29,14 +29,14 @@ def compute_type_field(a, b, c):
 def main():
     
     nsteps = 5000
-    shownth = 10
-    N = 50
+    shownth = 1
+    N = 100
     D = 1
     q = 1
-    p = 0.5
+    p = 1
     dx = 1
     dt = 0.1
-
+    k = 1/3
     
     cmap = ListedColormap(['gray', 'red', 'green', 'blue'])
     
@@ -53,6 +53,9 @@ def main():
     b = np.random.rand(N, N)/3
     c = np.random.rand(N, N)/3
     
+    a =np.random.uniform(0, k, (N, N))
+    b = np.random.uniform(0, k, (N, N))
+    c = np.random.uniform(0, k, (N, N))
     for step in range(nsteps):
         
         
@@ -64,7 +67,7 @@ def main():
         a += (D*(conv_a-4*a)/(dx**2) + q*a*(abc) - p*a*c)*dt
         
         conv_b = convolve2d(b, kernel, mode = 'same', boundary = 'wrap')
-        b += (D*(conv_b-4*b)/(dx**2) + q*b*(abc) - p*a*b)*dt
+        b += (D*(conv_b-4*b)/(dx**2) + q*b*(abc) - p*b*a)*dt
         
         conv_c = convolve2d(c, kernel, mode = 'same', boundary = 'wrap')
         c += (D*(conv_c-4*c)/(dx**2) + q*c*(abc) - p*b*c)*dt
