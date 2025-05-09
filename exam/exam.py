@@ -7,7 +7,7 @@ import argparse
 
 
 
-def simulate(N= 50, phi_0=0.1, animation=True, show_nth=10, max_steps=1000):
+def simulate(N= 50, phi_0=0.1, animation=True, show_nth=10, max_steps=5000):
     #simulation parameters
     M = 0.1
     q_0 = 0.5
@@ -53,12 +53,13 @@ def simulate(N= 50, phi_0=0.1, animation=True, show_nth=10, max_steps=1000):
             plt.text(0, -.1*N, f"Step: {step}")
             plt.draw()
             plt.pause(0.01)
+            print(np.mean(phi**2) - np.mean(phi)**2)
             
         #variance computation
         variance = np.mean(phi**2) - np.mean(phi)**2
         
         if step == max_steps:
-            print(f"Final variance: {variance}, {step} steps")
+            print(f"Final variance: {variance}, {step} steps, phi_0 = {phi_0}")
             return variance
 
 
@@ -69,16 +70,22 @@ def part_c():
     # Part c: Steady state variance vs initial phi_0
     # run simulation for different initial phi_0 values and plot the variance
     # for each initial phi_0, run the simulation and compute the variance
-    # assume equlilibrium is reached after 5000 steps
+    # assume equlilibrium is reached after 20000 steps
     
     phi_0s = np.linspace(0.0, 0.25, 20)
-    max_steps = 5000
+    max_steps = 20000
     variances = np.zeros(len(phi_0s))
     
     for i in range(len(phi_0s)):
         phi_0 = phi_0s[i]
         variances[i] = simulate(phi_0=phi_0, animation=False, max_steps=max_steps)
         
+    #open output file
+    with open("part_c_output.txt", "w") as f:
+        f.write("phi_0 variance\n")
+        for i in range(len(phi_0s)):
+            f.write(f"{phi_0s[i]} {variances[i]}\n")
+    
     plt.figure()
     plt.scatter(phi_0s, variances)
     plt.xlabel("Initial phi_0")
@@ -118,7 +125,6 @@ def simulate_part_d(N= 50, phi_0=0.1, animation=True, show_nth=10, max_steps=100
     
     
     # velocity field
-    v_0 = 0.5
     ys = np.arange(N)
     vx = -v_0 * np.sin(2 * np.pi * ys / N)  # shape (N,)
     
@@ -193,7 +199,7 @@ def main():
     args = parser.parse_args()
     
     if args.part == "a":
-        simulate(N = args.N, phi_0=0.1, animation=True, show_nth=args.show_nth, max_steps=args.max_steps)
+        simulate(N = args.N, phi_0=args.phi_0, animation=True, show_nth=args.show_nth, max_steps=args.max_steps)
 
     elif args.part == "b":
         print(f"refer to images stored in this directory for part b, and README.txt for discussion")
@@ -202,7 +208,7 @@ def main():
         part_c()
     
     elif args.part == "d":
-        simulate_part_d(N = args.N, phi_0=args.phi_0, animation=True, show_nth=args.show_nth, max_steps=args.max_steps, v_0=args.v_0)
+        simulate_part_d(N = args.N, animation=True, show_nth=args.show_nth, max_steps=args.max_steps, v_0=args.v_0)
         
        
        
