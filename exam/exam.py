@@ -187,7 +187,7 @@ def main():
     #main function to run the simulations, each part can be run separately
     
     parser = argparse.ArgumentParser(description="Phase Field Simulation")
-    parser.add_argument("--part", type=str, choices=["a", "b", "c", "d"], required=True, help="Part of the exam to run")
+    parser.add_argument("--part", type=str, choices=["a", "b", "c", "d"], required=True, help="Part of the exam to r --un")
     parser.add_argument("--phi_0", type=float, default=0.1, help="Initial value of phi")
     parser.add_argument("--animation", action="store_true", help="Show animation")
     parser.add_argument("--show_nth", type=int, default=10, help="Show every nth step") 
