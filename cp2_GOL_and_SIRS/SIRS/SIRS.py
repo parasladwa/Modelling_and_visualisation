@@ -328,11 +328,11 @@ def plot_cut():
 def fractions_plots():
    
     f_name = 'data_fractions.txt'
-    data = np.loadtxt(f_name, comments = '<', dtype=float)
+    data = np.loadtxt(f_name, comments = '<', dtype=float, ndmin=2)
     data /= 2500
-    Is = data[1:, 0]
-    Ss = data[1:, 1]
-    Rs = data[1:, 2]
+    Is = data[:, 0]
+    Ss = data[:, 1]
+    Rs = data[:, 2]
 
     x = np.array(list(range(len(Is))))
     

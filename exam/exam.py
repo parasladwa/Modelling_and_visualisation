@@ -5,8 +5,6 @@ import argparse
 
 
 
-
-
 def simulate(N= 50, phi_0=0.1, animation=True, show_nth=10, max_steps=5000):
     #simulation parameters
     M = 0.1

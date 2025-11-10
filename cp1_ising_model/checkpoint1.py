@@ -1,6 +1,5 @@
 import sys
 import time
-import scipy
 import random
 import numpy as np
 import pandas as pd
@@ -469,7 +468,7 @@ def plots_and_logging():
         
         
         
-        NET_DATA.append([METHOD, E_average_dict, E_err, C_dict, C_err, M_average_dict, M_err, X_dict, X_err])
+        NET_DATA.append([METHOD, E_average_dict, t_rr, C_dict, C_err, M_average_dict, M_err, X_dict, X_err])
         
         f.close()
 
