@@ -17,7 +17,17 @@ from matplotlib.colors import ListedColormap
 
 
 def initialise(N, f_immune):
+    """
+    args:
+        N: int ; size of lattice
+        f_immune: float ; fraction of immune sites
 
+    returns:
+        N by N grid of sites with f_immune*N*N sites
+        and randomly initilaised sites of state S I R 
+        or 0, 1, 2 respectively
+
+    """
     arr =  np.random.choice([0, 1, 2], size=(N, N))
     if f_immune == 0:
         return arr
