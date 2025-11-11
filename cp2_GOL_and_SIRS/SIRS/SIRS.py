@@ -142,15 +142,18 @@ def simulate(arr, p1, p2, p3, N, nsweeps, show_anim, show_nth, case, log, fracti
         
         if step % show_nth == 0:
             
-            if fractions:
-                outfile_fractions.write(f"{np.sum(arr == 1)} {np.sum(arr == 0)} {np.sum(arr == 2)}\n")
+            #if fractions:
+                #outfile_fractions.write(f"{np.sum(arr == 1)} {np.sum(arr == 0)} {np.sum(arr == 2)}\n")
             
             if show_anim:
                 plt.cla()
                 im=plt.imshow(arr, animated=True, cmap=cmap)
                 plt.title(f"SIRS Model, {case} case\nsweep: {step/(N*N)}, p1: {p1}, p2: {p2}, p3: {p3}: IF: {immunity_fraction}")
                 plt.draw()
-                plt.pause(0.01)
+                plt.pause(0.001)
+        
+        if step%250 == 0:
+            outfile_fractions.write(f"{np.sum(arr == 1)} {np.sum(arr == 0)} {np.sum(arr == 2)}\n")
             
 
     
@@ -449,7 +452,7 @@ def main():
     parser.add_argument("-p2", "--p2", type=float, default = 0.5, help="Probability of I -> R transition")
     parser.add_argument("-p3", "--p3", type=float, default = 0.5, help="Probability of R -> S transition")
     parser.add_argument("-c", "--case", choices=["absorbing", "dynamic_eq", "cyclic"], help="Choose a predefined case")
-    parser.add_argument("-nth", "--show_nth", type=int, default=2500, help="Show every nth step")
+    parser.add_argument("-nth", "--show_nth", type=int, default=5000, help="Show every nth step")
     parser.add_argument("-phase", "--p1_p3_phase", action = 'store_true', help = "Plots <I> / N phase across p1, p3 plane")
     parser.add_argument("-var", "--phase_variance", action = 'store_true', help = "Plots ( <I2> - <I>2 ) / N phase across p1, p3 plane")
     parser.add_argument("-f", "--fractions", action = 'store_true', help = "Plots the fractions of each state across the simulation")
